@@ -22,12 +22,13 @@ class SampleApp(tk.Tk):
         self.read_bytes()
 
     def read_bytes(self):
-        '''simulate reading 500 bytes; update progress bar'''
+        # simulate reading 500 bytes; update progress bar
         self.bytes += 500
         self.progress["value"] = self.bytes
         if self.bytes < self.maxbytes:
             # read more bytes after 100 ms
             self.after(100, self.read_bytes)
+
 
 app = SampleApp()
 app.mainloop()

@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 
 def get_encounter_meta(logs_base_dir) -> List:
     """
-    Given the logs base directory, extract all subdirectories and their respective files. Filter those with filter_logs().
+    Given the logs base directory, extract all subdirectories and their respective files.
+    Filter those with filter_logs().
     :param logs_base_dir: The Path to your main logs folder
     :return: A list of Tuples with the last encounter log path, boss name and number of tries
     """
@@ -38,7 +39,6 @@ def filter_logs(logs_path: List) -> List[Path]:
     current = datetime.now() - timedelta(weeks=week_delta)
     weeks_monday = current - timedelta(days=current.weekday())
     week_start = datetime.combine(weeks_monday, datetime.min.time())
-    print(week_start)
     for log in logs_path:
         file_size = os.path.getsize(log)
         log_timestamp = os.path.getctime(log)
