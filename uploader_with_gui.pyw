@@ -78,15 +78,17 @@ class Uploader(Tk):
         self.outButton.grid(column=0, row=0, sticky="W")
 
     def start(self):
-        self.startButton.configure(text="Started Uploading")
+        self.startButton.configure(text="Uploading")
+        self.outButton.configure(text="Copy to Clipboard")
+        self.to_clipboard = []
         self.raidDays = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
-        log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 400000)
+        log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 300000)
         if len(log_metas) == 0:
             self.progress["maximum"] = 1
             self.progress["value"] = 1
         else:
-            self.progress["value"] = 1
-            self.progress["maximum"] = len(log_metas) + 1
+            self.progress["value"] = 0
+            self.progress["maximum"] = len(log_metas)
             self.upload(log_metas)
 
     def upload(self, log_metas):
@@ -98,23 +100,27 @@ class Uploader(Tk):
         # while p.is_alive() and len(self.to_clipboard) != len(log_metas):
         #     self.after(3000, self.check_queue(q, p))
         #     self.update()
-        if len(self.to_clipboard) == len(log_metas):
-            p.join(5)
 
     def check_queue(self, q, p, meta_len):
         try:
             glenna_line = get_glenna_line(q.get(block=False))
         except Empty:
-            if p.is_alive() and len(self.to_clipboard) != meta_len:
-                self.after(3000, self.check_queue, q, p, meta_len)
-                self.update()
+            self.queue_stopper(q, p, meta_len)
         else:
             if glenna_line:
                 self.to_clipboard.append(glenna_line)
             self.progress["value"] += 1
-            if p.is_alive() and len(self.to_clipboard) != meta_len:
-                self.after(3000, self.check_queue, q, p, meta_len)
-                self.update()
+            self.queue_stopper(q, p, meta_len)
+
+    def queue_stopper(self, q, p, meta_len):
+        if p.is_alive() and len(self.to_clipboard) != meta_len:
+            self.after(3000, self.check_queue, q, p, meta_len)
+            self.update()
+        elif p.is_alive() and len(self.to_clipboard) == meta_len:
+            p.join(5)
+            self.check_queue(q, p, meta_len)
+        elif not p.is_alive():
+            self.startButton.configure(text="Done")
 
     def copy_to_clipboard(self):
         self.clipboard_clear()
