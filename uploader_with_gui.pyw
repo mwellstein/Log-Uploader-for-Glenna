@@ -1,8 +1,7 @@
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, freeze_support
 from pathlib import Path
 from queue import Empty
-from tkinter import Tk, Frame, Label, Checkbutton, BooleanVar, filedialog, Button, StringVar, Entry, Spinbox, IntVar, \
-    Text, INSERT
+from tkinter import Tk, Frame, Label, Checkbutton, BooleanVar, filedialog, Button, StringVar, Entry, Spinbox, IntVar
 from tkinter.ttk import Progressbar
 
 from uploader import get_log_metas, upload_file, get_glenna_line
@@ -16,7 +15,7 @@ def upload_file_wrapper(log_metas, q):
 class Uploader(Tk):
     def __init__(self):
         super().__init__()
-        self.title("Glenna Upload Utility")
+        self.title("Report Uploader for Glenna")
         self.geometry("500x350")
 
         # Top Frame
@@ -54,33 +53,32 @@ class Uploader(Tk):
         # Path Frame
         self.logPath = StringVar(
             value=Path().home() / "Documents" / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs")
-        self.logPathLabel = Label(self.pathFrame, text="Select the main log folder")
+        self.logPathLabel = Label(self.pathFrame, text="Path to the logs main folder:")
         self.logPathLabel.grid(column=0, row=0, sticky="W")
         self.logPathText = Entry(self.pathFrame, text=self.logPath, width=30)
         self.logPathText.grid(column=0, row=1, sticky="W")
-        self.pathButton = Button(self.pathFrame, text="Change", command=self.browse_button)
+        self.pathButton = Button(self.pathFrame, text="Select Folder", command=self.browse_button)
         self.pathButton.grid(column=1, row=1, sticky="W")
 
         # Past Frame
-        self.pastLabel = Label(self.pastFrame, text="Go back to past weeks").grid(row=0, sticky="W")
+        self.pastLabel = Label(self.pastFrame, text="Look into the past. (0 = this week)").grid(row=0, sticky="W")
         self.pastWeeks = IntVar()
         self.pastSpin = Spinbox(self.pastFrame, textvariable=self.pastWeeks, from_=0, to=3, width=5)
         self.pastSpin.grid(row=1, sticky="W")
 
         # Start Frame
-        self.startButton = Button(self.startFrame, text="Start upload", command=self.start)
+        self.startButton = Button(self.startFrame, text="Start Upload", command=self.start)
         self.startButton.grid(column=0, row=0, sticky="W")
         self.progress = Progressbar(self.startFrame, length=200, mode="determinate")
         self.progress.grid(column=0, row=1, sticky="W", pady=10)
         self.to_clipboard = []
 
         # Output Frame
-        self.outText = Text(self.bottomFrame, height=3, width=45)
-        # self.outText.grid(column=0, row=0, sticky="W")
-        self.outButton = Button(self.bottomFrame, text="Copy to clipboard", command=self.copy_to_clipboard)
+        self.outButton = Button(self.bottomFrame, text="Copy to Clipboard", command=self.copy_to_clipboard)
         self.outButton.grid(column=0, row=0, sticky="W")
 
     def start(self):
+        self.startButton.configure(text="Started Uploading")
         self.raidDays = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
         log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 400000)
         if len(log_metas) == 0:
@@ -96,29 +94,27 @@ class Uploader(Tk):
         p = Process(target=upload_file_wrapper, args=(log_metas, q))
         p.start()
         self.update()
-        while p.is_alive() and len(self.to_clipboard) != len(log_metas):
-            self.after(1000, self.check_queue(q, p))
-            self.update()
-        p.join(5)
+        self.check_queue(q, p, len(log_metas))
+        # while p.is_alive() and len(self.to_clipboard) != len(log_metas):
+        #     self.after(3000, self.check_queue(q, p))
+        #     self.update()
+        if len(self.to_clipboard) == len(log_metas):
+            p.join(5)
 
-    def check_queue(self, q, p):
+    def check_queue(self, q, p, meta_len):
         try:
             glenna_line = get_glenna_line(q.get(block=False))
         except Empty:
-            if p.is_alive():
-                self.after(1000, self.check_queue, q, p)
+            if p.is_alive() and len(self.to_clipboard) != meta_len:
+                self.after(3000, self.check_queue, q, p, meta_len)
                 self.update()
         else:
-            self.to_clipboard.append(glenna_line)
-            self.update_text(glenna_line)
+            if glenna_line:
+                self.to_clipboard.append(glenna_line)
             self.progress["value"] += 1
-            if p.is_alive():
-                self.after(1000, self.check_queue, q, p)
+            if p.is_alive() and len(self.to_clipboard) != meta_len:
+                self.after(3000, self.check_queue, q, p, meta_len)
                 self.update()
-
-    def update_text(self, text):
-        print(text)
-        self.outText.insert(INSERT, text + "\n")
 
     def copy_to_clipboard(self):
         self.clipboard_clear()
@@ -132,5 +128,6 @@ class Uploader(Tk):
 
 
 if __name__ == "__main__":
+    freeze_support()
     app = Uploader()
     app.mainloop()
