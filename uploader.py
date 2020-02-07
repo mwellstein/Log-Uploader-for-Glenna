@@ -26,10 +26,11 @@ def get_encounter_meta(logs_base_dir) -> List:
     return relevant_logs
 
 
-def filter_logs(logs_path: List) -> List[Path]:
+def filter_logs(logs_path: List, min_file_size: int = 4000) -> List[Path]:
     """
     Filter those by: this week, raid days and a minimum file size.
     :param logs_path: List of Paths to the log files of one boss
+    :param min_file_size: optional minimum file size
     :return: A list with the Paths of all files that satisfy the filtering conditions
     """
     filtered_logs = []
@@ -89,6 +90,24 @@ def get_glenna_lines(boss_meta: Tuple) -> None:
     if "Spukende Statue" in boss:
         return
     print(f"{link} {boss} {try_}")
+
+
+def main(base: str, days: Tuple):
+    # Change x of Path(x) to your log main folder. You may need to escape \ to \\
+    base_log_dir = Path("C:\\Users\\Matthias\\Documents\\Guild Wars 2\\addons\\arcdps\\arcdps.cbtlogs")
+    # Where do you want the output file with the uploaded fights?
+    output_to = Path("C:\\Users\\Matthias\\Desktop")
+    # What are your raiding days? English. Separate multiple with comma
+    raid_weekdays = "Wednesday", "Sunday"
+    # You forgot the files from last week? Set this to True
+    last_week = False
+
+    # Currently only german names guaranteed (also, only w5-7)
+    # No more need to configure, just code from here on
+    boss_logs = get_encounter_meta(base_log_dir)
+    glenna_meta = upload_files(boss_logs)
+    for fight in glenna_meta:
+        get_glenna_lines(fight)
 
 
 if __name__ == '__main__':
