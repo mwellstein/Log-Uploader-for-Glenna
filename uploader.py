@@ -24,12 +24,13 @@ def filter_logs(logs: List, raid_weekdays: List[str], week_delta: int, min_file_
     current = datetime.now() - timedelta(weeks=week_delta)
     weeks_monday = current - timedelta(days=current.weekday())
     week_start = datetime.combine(weeks_monday, datetime.min.time())
+    next_week = week_start + timedelta(weeks=1)
     for log in logs:
         file_size = os.path.getsize(log)
         log_timestamp = os.path.getctime(log)
         log_weekday = datetime.fromtimestamp(log_timestamp).strftime("%A")
         # If the log is from this week
-        if log_timestamp > week_start.timestamp():
+        if next_week.timestamp() > log_timestamp > week_start.timestamp():
             # and from a raid day
             if log_weekday in raid_weekdays:
                 # and more than a instant gg
