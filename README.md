@@ -1,4 +1,4 @@
-# Report Uploader for Glenna
+# Log Uploader for Glenna
 
 Aus der Idee, ein Skript zu schreiben, dass für meine Raid Gruppe die wöchentlichen Logs hochläd enstanden.
 
