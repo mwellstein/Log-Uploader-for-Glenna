@@ -1,8 +1,10 @@
-import requests
-from typing import List, Tuple
-from pathlib import Path
 import os
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import List, Tuple
+from multiprocessing import Queue
+
+import requests
 
 
 def filter_logs(logs: List, raid_weekdays: List[str], week_delta: int, min_file_size: int) -> List[Path]:
@@ -32,19 +34,26 @@ def filter_logs(logs: List, raid_weekdays: List[str], week_delta: int, min_file_
     return filtered_logs
 
 
-def upload_files(logs_meta: List) -> Tuple:
+def upload_file(logs_meta: Tuple, q: Queue = False) -> Tuple:
     """
     Uploads files to specified url and gets the link to their uploaded log
     :param logs_meta: The log Path
+    :param q: the queue, if its a child process
     :return: The permalink to the log, the boss name and the number of tries needed
     """
-    for log_file, log_boss, log_try_ in logs_meta:
-        with open(log_file, "rb") as log:
-            re = requests.post("https://dps.report/uploadContent?json=1", files={'file': log})
-            yield re.json()["permalink"], log_boss, log_try_
+    log_file, log_boss, log_try_ = logs_meta
+    with open(log_file, "rb") as log:
+        re = requests.post("https://dps.report/uploadContent?json=1", files={'file': log})
+        if re.status_code == 200:
+            meta = re.json()["permalink"], log_boss, log_try_
+            if q:
+                q.put(meta)
+            return meta
+        else:
+            print("Error, downloading", re.status_code)
 
 
-def get_glenna_lines(log_meta: Tuple) -> None:
+def get_glenna_line(log_meta: Tuple) -> str:
     """
     Returns lines to copy/paste for glenna.
     
@@ -64,38 +73,48 @@ def get_glenna_lines(log_meta: Tuple) -> None:
     # And some are not compatible with glenna
     # Namely strikes
     if "Knochenhäuter" in boss:
-        return
+        return ""
     if "Eisbrut-Konstrukt" in boss:
-        return
+        return ""
     if "Stimme der Gefallenen" in boss:
-        return
+        return ""
     if "Fraenir Jormags" in boss:
-        return
+        return ""
     # And some raid events
     if "Spukende Statue" in boss:
-        return
-    print(f"{link} {boss} {try_}")
+        return ""
+    return f"{link} {boss} {try_}"
 
 
-def main(base: str, raid_weekdays: List[str], week_delta: int, min_file_size: int):
+def get_log_metas(base: str, raid_weekdays: List[str], week_delta: int, min_file_size: int):
+    """
+    Get the latest log_path for each boss killed on the specified days in the specified week, that are larger then
+    the minimum file size. And the bosses Name (dir name), as well as how many tries where needed.
+    :param base: Path to the main log folder
+    :param raid_weekdays: From which days you want to have the uploads
+    :param week_delta: Go back in time
+    :param min_file_size: Filter instant gg`s
+    :return:
+    """
     base = Path(base)
     # Collect all boss folders
     bosses = [base / boss for boss in os.scandir(base) if boss.is_dir()]
     # The last logs of all bosses, be aware that e.g. eyes has two folders, thus two entries here
-    log_upload_meta = []
+    log_metas = []
     # Collect the latest log-file for each boss
     for boss in bosses:
         logs = [boss / log for log in os.scandir(boss) if log.is_file()]
         logs = filter_logs(logs, raid_weekdays, week_delta, min_file_size)
         try_count = len(logs)
         if logs:
-            log_upload_meta.append((max(logs, key=os.path.getctime), boss.name, try_count))
-
-    # No more need to configure, just code from here on
-    glenna_meta = upload_files(log_upload_meta)
-    for fight in glenna_meta:
-        get_glenna_lines(fight)
+            log_metas.append((max(logs, key=os.path.getctime), boss.name, try_count))
+    return log_metas
 
 
 if __name__ == '__main__':
-    main("C:\\Users\\Matthias\\Documents\\Guild Wars 2\\addons\\arcdps\\arcdps.cbtlogs", ["Wednesday", "Sunday"], 0, 4000)
+    logs_info = get_log_metas("C:\\Users\\Matthias\\Documents\\Guild Wars 2\\addons\\arcdps\\arcdps.cbtlogs",
+                              ["Wednesday", "Sunday"], 0, 400000)
+    glenna_meta = []
+    for file in logs_info:
+        fight = upload_file(file)
+        print(get_glenna_line(fight))
