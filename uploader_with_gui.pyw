@@ -15,7 +15,7 @@ def upload_file_wrapper(log_metas, q):
 class Uploader(Tk):
     def __init__(self):
         super().__init__()
-        self.title("Report Uploader for Glenna")
+        self.title("Log Uploader for Glenna")
         self.geometry("500x350")
 
         # Top Frame
