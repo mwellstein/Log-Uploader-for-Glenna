@@ -1,10 +1,14 @@
 import os
 from datetime import datetime, timedelta
+from http import HTTPStatus
+from multiprocessing import Queue
 from pathlib import Path
 from typing import List, Tuple
-from multiprocessing import Queue
 
 import requests
+import requests.cookies
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
 
 
 def filter_logs(logs: List, raid_weekdays: List[str], week_delta: int, min_file_size: int) -> List[Path]:
@@ -43,14 +47,23 @@ def upload_file(logs_meta: Tuple, q: Queue = False) -> Tuple:
     """
     log_file, log_boss, log_try_ = logs_meta
     with open(log_file, "rb") as log:
-        re = requests.post("https://dps.report/uploadContent?json=1", files={'file': log})
-        if re.status_code == 200:
-            meta = re.json()["permalink"], log_boss, log_try_
-            if q:
-                q.put(meta)
-            return meta
-        else:
-            print("Error, downloading", re.status_code)
+        with requests.session() as session:
+            session.mount("https://", HTTPAdapter(
+                max_retries=Retry(total=3, connect=3, redirect=10, backoff_factor=0.2,
+                                  status_forcelist=[HTTPStatus.REQUEST_TIMEOUT,  # HTTP 408
+                                                    HTTPStatus.CONFLICT,  # HTTP 409
+                                                    HTTPStatus.INTERNAL_SERVER_ERROR,  # HTTP 500
+                                                    HTTPStatus.BAD_GATEWAY,  # HTTP 502
+                                                    HTTPStatus.SERVICE_UNAVAILABLE,  # HTTP 503
+                                                    HTTPStatus.GATEWAY_TIMEOUT])))  # HTTP 504
+            re = session.post("https://dps.report/uploadContent?json=1", files={'file': log})
+            if re.status_code != 200:
+                raise HTTPStatus(re.url, re.status_code)
+            elif re.status_code == 200:
+                meta = re.json()["permalink"], log_boss, log_try_
+                if q:
+                    q.put(meta)
+                return meta
 
 
 def get_glenna_line(log_meta: Tuple) -> str:
