@@ -32,6 +32,7 @@ https://dps.report/L6k4-20200205-202446_twins Largos-Zwillinge 1
 https://dps.report/d5pX-20200205-204126_qadim Qadim 1
 https://dps.report/j59y-20200205-210908_adina Kardinal Adina 1
 https://dps.report/fgb5-20200205-205902_sabir Kardinal Sabir 1
-https://dps.report/pGqE-20200205-212050_qpeer Qadim der Unvergleichliche 1```
+https://dps.report/pGqE-20200205-212050_qpeer Qadim der Unvergleichliche 1
+```
 
 Dies entspricht dem Permalink zum hochgeladenen dps.report File, dem deutschen Bossnamen (wie er durch den Discord-Bot unserer Raidgruppe verstanden wird) und der Anzahl der Versuche.
