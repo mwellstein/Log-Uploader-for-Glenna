@@ -13,14 +13,10 @@ def upload_file_wrapper(log_metas, q):
         upload_file(file, q)
 
 
-def test():
-    print("St")
-
-
 class Uploader(Tk):
     def __init__(self):
         super().__init__()
-        self.title("dps.report Upload Utility")
+        self.title("Glenna Upload Utility")
         self.geometry("500x350")
 
         # Top Frame
@@ -127,6 +123,7 @@ class Uploader(Tk):
     def copy_to_clipboard(self):
         self.clipboard_clear()
         for log_line in self.to_clipboard:
+            self.update()
             self.clipboard_append(log_line + "\n")
         self.outButton.configure(text="Copied")
 
