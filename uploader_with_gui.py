@@ -1,9 +1,11 @@
-from queue import Empty
-from tkinter import Tk, Frame, Label, Checkbutton, BooleanVar, filedialog, Button, StringVar, Entry, Spinbox, IntVar, Text
-from tkinter.ttk import Progressbar
-from pathlib import Path
-from uploader import get_log_metas, upload_file, get_glenna_line
 from multiprocessing import Process, Queue
+from pathlib import Path
+from queue import Empty
+from tkinter import Tk, Frame, Label, Checkbutton, BooleanVar, filedialog, Button, StringVar, Entry, Spinbox, IntVar, \
+    Text, INSERT
+from tkinter.ttk import Progressbar
+
+from uploader import get_log_metas, upload_file, get_glenna_line
 
 
 def upload_file_wrapper(log_metas, q):
@@ -20,6 +22,7 @@ class Uploader(Tk):
         super().__init__()
         self.title("dps.report Upload Utility")
         self.geometry("500x350")
+
         # Top Frame
         self.topFrame = Frame()
         self.topFrame.grid(column=0, row=0, sticky="NW", padx=20, pady=20)
@@ -76,15 +79,21 @@ class Uploader(Tk):
         self.to_clipboard = []
 
         # Output Frame
-        self.outText = Text(self.bottomFrame, height=3, width=40, state="disabled")
-        self.outText.grid(column=0, row=0, sticky="W")
+        self.outText = Text(self.bottomFrame, height=3, width=45)
+        # self.outText.grid(column=0, row=0, sticky="W")
+        self.outButton = Button(self.bottomFrame, text="Copy to clipboard", command=self.copy_to_clipboard)
+        self.outButton.grid(column=0, row=0, sticky="W")
 
     def start(self):
         self.raidDays = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
         log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 400000)
-        self.progress["value"] = 0
-        self.progress["maximum"] = len(log_metas)
-        self.upload(log_metas)
+        if len(log_metas) == 0:
+            self.progress["maximum"] = 1
+            self.progress["value"] = 1
+        else:
+            self.progress["value"] = 1
+            self.progress["maximum"] = len(log_metas) + 1
+            self.upload(log_metas)
 
     def upload(self, log_metas):
         q = Queue(50)
@@ -94,8 +103,7 @@ class Uploader(Tk):
         while p.is_alive() and len(self.to_clipboard) != len(log_metas):
             self.after(1000, self.check_queue(q, p))
             self.update()
-        p.join(2)
-        # p.is_alive() and len(self.to_clipboard) != len(log_metas)
+        p.join(5)
 
     def check_queue(self, q, p):
         try:
@@ -103,18 +111,24 @@ class Uploader(Tk):
         except Empty:
             if p.is_alive():
                 self.after(1000, self.check_queue, q, p)
+                self.update()
         else:
-            print(glenna_line)
             self.to_clipboard.append(glenna_line)
             self.update_text(glenna_line)
             self.progress["value"] += 1
-            self.update()
             if p.is_alive():
                 self.after(1000, self.check_queue, q, p)
+                self.update()
 
     def update_text(self, text):
-        # Update output text field
-        return
+        print(text)
+        self.outText.insert(INSERT, text + "\n")
+
+    def copy_to_clipboard(self):
+        self.clipboard_clear()
+        for log_line in self.to_clipboard:
+            self.clipboard_append(log_line + "\n")
+        self.outButton.configure(text="Copied")
 
     def browse_button(self):
         self.logPath.set(filedialog.askdirectory())
