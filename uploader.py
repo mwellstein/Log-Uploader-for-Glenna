@@ -39,6 +39,11 @@ def filter_logs(logs: List, raid_weekdays: List[str], week_delta: int, min_file_
     return filtered_logs
 
 
+def upload_files(log_metas, q):
+    for file in log_metas:
+        upload_file(file, q)
+
+
 def upload_file(logs_meta: Tuple, q: Queue = False) -> Tuple:
     """
     Uploads files to specified url and gets the link to their uploaded log

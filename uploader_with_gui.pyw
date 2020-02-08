@@ -4,12 +4,7 @@ from queue import Empty
 from tkinter import Tk, Frame, Label, Checkbutton, BooleanVar, filedialog, Button, StringVar, Entry, Spinbox, IntVar
 from tkinter.ttk import Progressbar
 
-from uploader import get_log_metas, upload_file, get_glenna_line
-
-
-def upload_file_wrapper(log_metas, q):
-    for file in log_metas:
-        upload_file(file, q)
+from uploader import get_log_metas, upload_files, get_glenna_line
 
 
 class LogUploaderUI(Tk):
@@ -94,7 +89,7 @@ class LogUploaderUI(Tk):
 
     def upload(self, log_metas):
         q = Queue(50)
-        p = Process(target=upload_file_wrapper, args=(log_metas, q))
+        p = Process(target=upload_files, args=(log_metas, q))
         p.start()
         self.update()
         self.check_queue(q, p, len(log_metas))
