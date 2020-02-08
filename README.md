@@ -4,17 +4,20 @@ Aus der Idee, ein Skript zu schreiben, dass für meine Raid Gruppe die wöchentl
 
 Da die Konfiguration im Code recht nervig geworden wäre - und ich es mal ausprobieren wollte - hab ich ein UI drum herum gebaut.
 
-Es werden logs hochgeladen, die:
- - im angegebenen Pfad liegen
- - größer sind als 300KB (momentan nicht im UI anpassbar)
- - in der Woche bzw. an dem Tag erstellt wurden, die eingestellt sind beim Button drücken
+Es werden logs ausgewählt, die:
+ - in einem der Boss Ordner oder eins darunter (bei Sortierung nach Charakteren) liegen
+ - größer sind als 200KB
+ - in der Woche bzw. an dem Tag erstellt wurden, die eingestellt sind, wenn der Button gedrück wird
+
+Nur der neuste Log wird dabei hochgeladen.
 
 Es kann zu Fehlern kommen:
- - sollte der Upload zu oft nicht funktionieren
+ - sollte der Upload zu oft nicht funktionieren, wird das Log ausgelassen
  - bei nochmaligem drücken des Start Buttons während dieser läd (und nicht hängt) => bringt die Ausgabe durcheinander
+ - solltet ihr am selben Tag mit deutscher und englischer Sprache Boss mehrfach legen, werden diese seperat hochgeladen..
  - was ich vergessen/noch nicht gesehen habe
 
-Von den Fehlern solltet ihr allerdings nichts sehen.
+Von den Fehlern solltet ihr allerdings nichts sehen. Das Programm würde einfach nichts tun.
 
 Wenn der Upload fertig ist ("Done" und Balken voll gefüllt), könnt ihr die Logs mit "Copy to Clipboard" kopieren.
 
@@ -35,4 +38,4 @@ https://dps.report/fgb5-20200205-205902_sabir Kardinal Sabir 1
 https://dps.report/pGqE-20200205-212050_qpeer Qadim der Unvergleichliche 1
 ```
 
-Dies entspricht dem Permalink zum hochgeladenen dps.report File, dem deutschen Bossnamen (wie er durch den Discord-Bot unserer Raidgruppe verstanden wird) und der Anzahl der Versuche.
+Dies entspricht dem Permalink zum hochgeladenen dps.report File, dem Bossnamen (Name des Ordners => englischer Client = englische Bossnamen) und der Anzahl der Versuche.
