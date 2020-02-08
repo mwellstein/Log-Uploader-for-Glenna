@@ -8,8 +8,8 @@ class LogCollector:
     """
     The log collector takes all logs, filters through and holds on to the resulting logs
     """
-    def __init__(self, base: Path, raid_days: List[str], week_delta: int, min_size: int, fracs: bool):
-        self.base = base
+    def __init__(self, base: str, raid_days: List[str], week_delta: int, min_size: int, fracs: bool):
+        self.base = Path(base)
         self.raid_days = raid_days
         self.from_ = datetime.now() - timedelta(weeks=week_delta, days=datetime.now().weekday())
         self.until = self.from_ + timedelta(weeks=1)
@@ -75,8 +75,3 @@ def _collect(boss_dir):
     for sub_dir in sub_dirs:
         files.extend([sub_dir / log for log in sub_dir.iterdir() if log.is_file()])
     return files
-
-
-if __name__ == "__main__":
-    a = LogCollector(Path("C:\\Users\\Matthias\\Documents\\Guild Wars 2\\addons\\arcdps\\arcdps.cbtlogs"), [""], 0, 100000)
-    a.collect()
