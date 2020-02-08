@@ -12,7 +12,7 @@ def upload_file_wrapper(log_metas, q):
         upload_file(file, q)
 
 
-class Uploader(Tk):
+class LogUploaderUI(Tk):
     def __init__(self):
         super().__init__()
         self.title("Log Uploader for Glenna")
@@ -135,5 +135,5 @@ class Uploader(Tk):
 
 if __name__ == "__main__":
     freeze_support()
-    app = Uploader()
+    app = LogUploaderUI()
     app.mainloop()

@@ -76,27 +76,6 @@ def get_glenna_line(log_meta: Tuple) -> str:
     :return: 
     """
     link, boss, try_ = log_meta
-    # Those bosses bought a name change for 1000 gems
-    if "Auge des" in boss:
-        boss = "Augen"
-    if "Desmina" in boss:
-        boss = "Fluss der Seelen"
-    if "Nikare" in boss:
-        boss = "Largos-Zwillinge"
-
-    # And some are not compatible with glenna
-    # Namely strikes
-    if "Knochenhäuter" in boss:
-        return ""
-    if "Eisbrut-Konstrukt" in boss:
-        return ""
-    if "Stimme der Gefallenen" in boss:
-        return ""
-    if "Fraenir Jormags" in boss:
-        return ""
-    # And some raid events
-    if "Spukende Statue" in boss:
-        return ""
     return f"{link} {boss} {try_}"
 
 
@@ -123,12 +102,3 @@ def get_log_metas(base: str, raid_weekdays: List[str], week_delta: int, min_file
         if logs:
             log_metas.append((max(logs, key=os.path.getctime), boss.name, try_count))
     return log_metas
-
-
-if __name__ == '__main__':
-    logs_info = get_log_metas("C:\\Users\\Matthias\\Documents\\Guild Wars 2\\addons\\arcdps\\arcdps.cbtlogs",
-                              ["Wednesday", "Sunday"], 0, 400000)
-    glenna_meta = []
-    for file in logs_info:
-        fight = upload_file(file)
-        print(get_glenna_line(fight))
