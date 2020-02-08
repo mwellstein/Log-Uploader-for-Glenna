@@ -79,6 +79,19 @@ def get_glenna_line(log_meta: Tuple) -> str:
     return f"{link} {boss} {try_}"
 
 
+def get_all_files(boss: Path) -> List[Path]:
+    """
+    Get all files in the boss folder, and one level into subdirectories
+    :param boss: The Path to the boss folder
+    :return: all log files under the boss folder
+    """
+    files = [boss / log for log in os.scandir(boss) if log.is_file()]
+    subs = [boss / sub for sub in os.scandir(boss) if sub.is_dir()]
+    for sub in subs:
+        files.extend([sub / log for log in os.scandir(sub) if log.is_file()])
+    return files
+
+
 def get_log_metas(base: str, raid_weekdays: List[str], week_delta: int, min_file_size: int):
     """
     Get the latest log_path for each boss killed on the specified days in the specified week, that are larger then
@@ -96,7 +109,7 @@ def get_log_metas(base: str, raid_weekdays: List[str], week_delta: int, min_file
     log_metas = []
     # Collect the latest log-file for each boss
     for boss in bosses:
-        logs = [boss / log for log in os.scandir(boss) if log.is_file()]
+        logs = get_all_files(boss)
         logs = filter_logs(logs, raid_weekdays, week_delta, min_file_size)
         try_count = len(logs)
         if logs:
