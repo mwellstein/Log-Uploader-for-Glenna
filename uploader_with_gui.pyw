@@ -68,14 +68,15 @@ class LogUploaderUI(Tk):
         self.progress.grid(column=0, row=1, sticky="W", pady=10)
         self.to_clipboard = []
 
-        # Output Frame
-        self.outButton = Button(self.bottomFrame, text="Copy to Clipboard", command=self.copy_to_clipboard)
-        self.outButton.grid(column=0, row=0, sticky="W")
+        # Copy Frame
+        self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=self.copy_to_clipboard)
+        self.copyButton.grid(column=0, row=0, sticky="W")
 
     def start(self):
         self.startButton.configure(text="Uploading")
-        self.outButton.configure(text="Copy to Clipboard")
+        self.copyButton.configure(text="Copy to Clipboard")
         self.to_clipboard = []
+        # [i for i, day in enumerate(self.weekdays) if self.weedaysVar[i].get()] => No Need to compute weekday in Log()
         self.raidDays = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
         log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 200000)
         if len(log_metas) == 0:
@@ -123,7 +124,7 @@ class LogUploaderUI(Tk):
         for log_line in self.to_clipboard:
             self.update()
             self.clipboard_append(log_line + "\n")
-        self.outButton.configure(text="Copied")
+        self.copyButton.configure(text="Copied")
 
     def browse_button(self):
         self.logPath.set(filedialog.askdirectory())
