@@ -82,10 +82,11 @@ class LogUploaderUI(Tk):
         self.outButton.configure(text="Copy to Clipboard")
         self.to_clipboard = []
         self.raidDays = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
-        log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 300000)
+        log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 200000)
         if len(log_metas) == 0:
             self.progress["maximum"] = 1
             self.progress["value"] = 1
+            self.startButton["text"] = "No logs found."
         else:
             self.progress["value"] = 0
             self.progress["maximum"] = len(log_metas)
