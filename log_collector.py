@@ -8,12 +8,13 @@ class LogCollector:
     """
     The log collector takes all logs, filters through and holds on to the resulting logs
     """
-    def __init__(self, base: Path, raid_days: List[str], week_delta: int, min_size: int):
+    def __init__(self, base: Path, raid_days: List[str], week_delta: int, min_size: int, fracs: bool):
         self.base = base
         self.raid_days = raid_days
         self.from_ = datetime.now() - timedelta(weeks=week_delta, days=datetime.now().weekday())
         self.until = self.from_ + timedelta(weeks=1)
         self.min_size = min_size
+        self.fracs = fracs
         self.raid_bosses = [
             "Tal-Wächter", "Gorseval der Facettenreiche", "Sabetha die Saboteurin",  # W1 GER
             "Vale Guardian", "Gorseval the Multifarious", "Sabetha the Saboteur",  # W1 ENG
@@ -32,10 +33,17 @@ class LogCollector:
             "Eisbrut-Konstrukt", "Stimme der Gefallenen", "Fraenir Jormags", "Knochenhäuter", "Stimme der Gefallenen",  # Strikes GER
             "Icebrood Construct", "Voice of the Fallen", "Fraenir of Jormag", "Boneskinner", "Whisper of Jormag", "Freezie"  # Strikes ENG
         ]
+        self.fractal_bosses = [
+            "MAMA", "Albtraum-Oratuss", "Ensolyss der endlosen Pein", "Skorvald der Zerschmetterte",
+            "Siax the Corrupted", "Ensolyss of the Endless Torment", "Skorvald the Shattered", "Artsariiv", "Arkk"
+        ]
 
     def collect(self):
         # Collect all boss directories
-        boss_dirs = [boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.raid_bosses]
+        if self.fracs:
+            boss_dirs = [boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.fractal_bosses]
+        else:
+            boss_dirs = [boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.raid_bosses]
         latest_logs = []
         for boss_dir in boss_dirs:
             logs = [Log(path, boss_dir.name) for path in _collect(boss_dir)]
@@ -69,5 +77,6 @@ def _collect(boss_dir):
     return files
 
 
-a = LogCollector(Path("C:\\Users\\Matthias\\Documents\\Guild Wars 2\\addons\\arcdps\\arcdps.cbtlogs"), [""], 0, 100000)
-a.collect()
+if __name__ == "__main__":
+    a = LogCollector(Path("C:\\Users\\Matthias\\Documents\\Guild Wars 2\\addons\\arcdps\\arcdps.cbtlogs"), [""], 0, 100000)
+    a.collect()
