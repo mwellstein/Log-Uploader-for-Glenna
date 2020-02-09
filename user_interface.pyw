@@ -1,13 +1,13 @@
-from multiprocessing import Process, Queue, freeze_support
-from pathlib import Path
+from tkinter import Tk, BooleanVar, filedialog, StringVar, IntVar
+from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox
 from queue import Empty
-from tkinter import Tk, Frame, Label, Checkbutton, BooleanVar, filedialog, Button, StringVar, Entry, Spinbox, IntVar
-from tkinter.ttk import Progressbar
+from pathlib import Path
+from log_collector import LogCollector
+from multiprocessing import Process, freeze_support, Queue
+from uploader import upload
 
-from uploader import get_log_metas, upload_files, get_glenna_line
 
-
-class LogUploaderUI(Tk):
+class UserInterface(Tk):
     def __init__(self):
         super().__init__()
         self.title("Log Uploader for Glenna")
@@ -28,7 +28,7 @@ class LogUploaderUI(Tk):
         # Left Frame
         self.weekLabel = Label(self.leftFrame, text="When did you raid?")
         self.weekLabel.grid(row=0)
-        self.raidDays = []
+        self.raid_days = []
         self.weekdaysVar = []
         self.weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         for i, day in enumerate(self.weekdays):
@@ -57,63 +57,77 @@ class LogUploaderUI(Tk):
 
         # Past Frame
         self.pastLabel = Label(self.pastFrame, text="Look into the past. (0 = this week)").grid(row=0, sticky="W")
-        self.pastWeeks = IntVar()
-        self.pastSpin = Spinbox(self.pastFrame, textvariable=self.pastWeeks, from_=0, to=3, width=5)
+        self.week_delta = IntVar()
+        self.pastSpin = Spinbox(self.pastFrame, textvariable=self.week_delta, from_=0, to=3, width=5)
         self.pastSpin.grid(row=1, sticky="W")
 
         # Start Frame
-        self.startButton = Button(self.startFrame, text="Start Upload", command=self.start)
+        self.startButton = Button(self.startFrame, text="Start Upload", command=self.click_start)
         self.startButton.grid(column=0, row=0, sticky="W")
+        self.fracVar = BooleanVar()
+        self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
+        self.fracCheck.grid(column=0, row=0, sticky="E")
         self.progress = Progressbar(self.startFrame, length=200, mode="determinate")
         self.progress.grid(column=0, row=1, sticky="W", pady=10)
-        self.to_clipboard = []
+        self.uploaded_logs = []
 
         # Copy Frame
         self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=self.copy_to_clipboard)
         self.copyButton.grid(column=0, row=0, sticky="W")
 
-    def start(self):
+    def click_start(self):
+        # Reset progress, kill processes, restart everything
+        self._reset()
         self.startButton.configure(text="Uploading")
-        self.copyButton.configure(text="Copy to Clipboard")
-        self.to_clipboard = []
-        # [i for i, day in enumerate(self.weekdays) if self.weedaysVar[i].get()] => No Need to compute weekday in Log()
-        self.raidDays = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
-        log_metas = get_log_metas(self.logPath.get(), self.raidDays, self.pastWeeks.get(), 200000)
-        if len(log_metas) == 0:
+        self.uploaded_logs = []
+        # [i for i, _ in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
+        # => No Need to compute weekday in Log(), still need day number
+        self.raid_days = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
+
+        logs = LogCollector(self.logPath.get(), self.raid_days, self.week_delta.get(), 200000, self.fracVar.get())
+        logs = logs.collect()
+
+        if not logs:
+            # Finish, since nothing was uploaded
             self.progress["maximum"] = 1
             self.progress["value"] = 1
             self.startButton["text"] = "No logs found."
         else:
+            # Set up the progressbar
             self.progress["value"] = 0
-            self.progress["maximum"] = len(log_metas)
-            self.upload(log_metas)
+            self.progress["maximum"] = len(logs)
+            # Start the Log Upload
+            self.upload(logs)
 
-    def upload(self, log_metas):
-        q = Queue(50)
-        p = Process(target=upload_files, args=(log_metas, q))
-        p.start()
+    def _reset(self):
+        self.copyButton.configure(text="Copy to Clipboard")
+        # self.p.terminate()
+
+    def click_reset(self):
+        # Add button
+        self.copyButton.configure(text="Copy to Clipboard")
+
+    def upload(self, logs):
+        q = Queue(len(logs))
+        poi = Process(target=upload, args=(logs, q))
+        poi.start()
         self.update()
-        self.check_queue(q, p, len(log_metas))
-        # while p.is_alive() and len(self.to_clipboard) != len(log_metas):
-        #     self.after(3000, self.check_queue(q, p))
-        #     self.update()
+        self.check_queue(q, poi, len(logs))
 
     def check_queue(self, q, p, meta_len):
         try:
-            glenna_line = get_glenna_line(q.get(block=False))
+            self.uploaded_logs.append(str(q.get(block=False)))
         except Empty:
             self.queue_stopper(q, p, meta_len)
         else:
-            if glenna_line:
-                self.to_clipboard.append(glenna_line)
             self.progress["value"] += 1
             self.queue_stopper(q, p, meta_len)
 
     def queue_stopper(self, q, p, meta_len):
-        if p.is_alive() and len(self.to_clipboard) != meta_len:
+        if p.is_alive() and len(self.uploaded_logs) != meta_len:
             self.after(3000, self.check_queue, q, p, meta_len)
             self.update()
-        elif p.is_alive() and len(self.to_clipboard) == meta_len:
+        elif p.is_alive() and len(self.uploaded_logs) == meta_len:
             p.join(5)
             self.check_queue(q, p, meta_len)
         elif not p.is_alive():
@@ -121,7 +135,7 @@ class LogUploaderUI(Tk):
 
     def copy_to_clipboard(self):
         self.clipboard_clear()
-        for log_line in self.to_clipboard:
+        for log_line in self.uploaded_logs:
             self.update()
             self.clipboard_append(log_line + "\n")
         self.copyButton.configure(text="Copied")
@@ -132,5 +146,5 @@ class LogUploaderUI(Tk):
 
 if __name__ == "__main__":
     freeze_support()
-    app = LogUploaderUI()
+    app = UserInterface()
     app.mainloop()
