@@ -1,12 +1,13 @@
-from multiprocessing import Queue
-from log import Log
-from typing import List
 from http import HTTPStatus
+from multiprocessing import Queue
+from typing import List
 
 import requests
 import requests.cookies
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+
+from log import Log
 
 
 def upload(logs: List[Log], q: Queue):

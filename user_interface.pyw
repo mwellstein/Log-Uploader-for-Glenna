@@ -1,9 +1,10 @@
+from multiprocessing import Process, freeze_support, Queue
+from pathlib import Path
+from queue import Empty
 from tkinter import Tk, BooleanVar, filedialog, StringVar, IntVar
 from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox
-from queue import Empty
-from pathlib import Path
+
 from log_collector import LogCollector
-from multiprocessing import Process, freeze_support, Queue
 from uploader import upload
 
 

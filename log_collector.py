@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
+
 from log import Log
 
 
@@ -8,6 +9,7 @@ class LogCollector:
     """
     The log collector takes all logs, filters through and holds on to the resulting logs
     """
+
     def __init__(self, base: str, raid_days: List[str], week_delta: int, min_size: int, fracs: bool):
         self.base = Path(base)
         self.raid_days = raid_days
@@ -24,14 +26,17 @@ class LogCollector:
             "Keep Construct", "Haunting Statue",  # W3 EMG
             "Cairn der Unbeugsame", "Mursaat-Aufseher", "Samarog", "Deimos",  # W4 GER
             "Cairn the Indomitable", "Mursaat Overseer",  # W4 ENG
-            "Seelenloser Schrecken", "Desmina", "Bezwungener König", "Seelenverzehrer", "Auge des Urteils", "Auge des Schicksals", "Dhuum",  # W5 GER
+            "Seelenloser Schrecken", "Desmina", "Bezwungener König", "Seelenverzehrer", "Auge des Urteils",
+            "Auge des Schicksals", "Dhuum",  # W5 GER
             "Soulless Horror", "Broken King", "Eater of Souls", "Eye of Judgment", "Eye of Fate",  # W5 ENG
             "Beschworene Verschmelzung", "Nikare", "Qadim",  # W6 GER
             "Conjured Amalgamate",  # W6 ENG
             "Kardinal Adina", "Kardinal Sabir", "Qadim der Unvergleichliche",  # W7 GER
             "Cardinal Adina", "Cardinal Sabir", "Qadim the Peerless",  # W7 GER
-            "Eisbrut-Konstrukt", "Stimme der Gefallenen", "Fraenir Jormags", "Knochenhäuter", "Stimme der Gefallenen",  # Strikes GER
-            "Icebrood Construct", "Voice of the Fallen", "Fraenir of Jormag", "Boneskinner", "Whisper of Jormag", "Freezie"  # Strikes ENG
+            "Eisbrut-Konstrukt", "Stimme der Gefallenen", "Fraenir Jormags", "Knochenhäuter", "Stimme der Gefallenen",
+            # Strikes GER
+            "Icebrood Construct", "Voice of the Fallen", "Fraenir of Jormag", "Boneskinner", "Whisper of Jormag",
+            "Freezie"  # Strikes ENG
         ]
         self.fractal_bosses = [
             "MAMA", "Albtraum-Oratuss", "Ensolyss der endlosen Pein", "Skorvald der Zerschmetterte",
