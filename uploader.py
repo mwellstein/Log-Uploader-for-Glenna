@@ -81,7 +81,7 @@ def get_glenna_line(log_meta: Tuple) -> str:
     :return: 
     """
     link, boss, try_ = log_meta
-    return f"{link} {boss} {try_}"
+    return f"{link} {try_}"
 
 
 def get_all_files(boss: Path) -> List[Path]:
