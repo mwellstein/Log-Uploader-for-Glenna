@@ -16,9 +16,7 @@ class Log:
 
     def __str__(self):
         if self.link:
-            if self.boss == "Desmina":
-                self.boss = "River"
-            return f"{self.link} {self.boss} {self.try_}"
+            return f"{self.link} {self.try_}"
         else:
             raise NoLogLinkError(self)
 
