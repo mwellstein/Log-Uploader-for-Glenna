@@ -5,7 +5,7 @@ from tkinter import Tk, BooleanVar, filedialog, StringVar, IntVar
 from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox
 
 from log_collector import LogCollector
-from uploader import upload
+from uploader import Uploader
 
 
 class UserInterface(Tk):
@@ -110,10 +110,10 @@ class UserInterface(Tk):
 
     def upload(self, logs):
         q = Queue(len(logs))
-        poi = Process(target=upload, args=(logs, q))
+        up = Uploader(q)
+        poi = Process(target=up.upload, args=(logs,))
         poi.start()
-        self.update()
-        self.check_queue(q, poi, len(logs))
+        self.after(1000, self.check_queue, q, poi, len(logs))
 
     def check_queue(self, q, p, meta_len):
         try:
@@ -122,16 +122,7 @@ class UserInterface(Tk):
             self.queue_stopper(q, p, meta_len)
         else:
             self.progress["value"] += 1
-            self.queue_stopper(q, p, meta_len)
-
-    def queue_stopper(self, q, p, meta_len):
-        if p.is_alive() and len(self.uploaded_logs) != meta_len:
-            self.after(3000, self.check_queue, q, p, meta_len)
-            self.update()
-        elif p.is_alive() and len(self.uploaded_logs) == meta_len:
-            p.join(5)
-            self.check_queue(q, p, meta_len)
-        elif not p.is_alive():
+        if not p.is_alive():
             self.startButton.configure(text="Done")
 
     def copy_to_clipboard(self):
