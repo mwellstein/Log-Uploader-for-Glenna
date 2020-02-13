@@ -111,19 +111,20 @@ class UserInterface(Tk):
     def upload(self, logs):
         q = Queue(len(logs))
         up = Uploader(q)
-        poi = Process(target=up.upload, args=(logs,))
+        poi = Process(target=up.parallel_upload, args=(logs,))
         poi.start()
-        self.after(1000, self.check_queue, q, poi, len(logs))
+        self.check_queue(q, poi)
 
-    def check_queue(self, q, p, meta_len):
+    def check_queue(self, q, p):
         try:
             self.uploaded_logs.append(str(q.get(block=False)))
         except Empty:
-            self.queue_stopper(q, p, meta_len)
+            pass
         else:
             self.progress["value"] += 1
         if not p.is_alive():
             self.startButton.configure(text="Done")
+        self.after(1000, self.check_queue, q, p)
 
     def copy_to_clipboard(self):
         self.clipboard_clear()
