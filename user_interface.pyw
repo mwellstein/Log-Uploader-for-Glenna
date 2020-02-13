@@ -59,7 +59,7 @@ class UserInterface(Tk):
         # Past Frame
         self.pastLabel = Label(self.pastFrame, text="Look into the past. (0 = this week)").grid(row=0, sticky="W")
         self.week_delta = IntVar()
-        self.pastSpin = Spinbox(self.pastFrame, textvariable=self.week_delta, from_=0, to=3, width=5)
+        self.pastSpin = Spinbox(self.pastFrame, textvariable=self.week_delta, from_=0, to=99, width=5)
         self.pastSpin.grid(row=1, sticky="W")
 
         # Start Frame
