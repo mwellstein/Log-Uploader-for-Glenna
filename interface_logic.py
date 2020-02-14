@@ -50,16 +50,15 @@ def _click_upload():
 
 def _start_upload(logs: List[Log]):
     ui.uploadBtn.configure(text="Uploading")
-    global uploaded_logs, upload_queue, after_id
+    global uploaded_logs, upload_queue
     uploaded_logs = []
     upload_queue = Queue(len(logs))
     up = Uploader(upload_queue)
     up.parallel_upload(logs)
-    check_queue(up)
-    # ui.uploadBtn.configure(text="Done")
+    check_queue(up, len(logs))
 
 
-def check_queue(up: Uploader):
+def check_queue(up: Uploader, logs_len: int):
     print(active_count())
     try:
         uploaded_logs.append(str(upload_queue.get(block=False)))
@@ -67,11 +66,14 @@ def check_queue(up: Uploader):
         pass
     else:
         ui.uploadPrg["value"] += 1
-    if up.failed:
+
+    if len(uploaded_logs) == logs_len:
+        ui.uploadBtn.configure(text="Done")
+    elif up.failed:
         on_upload_failure(up)
     else:
         global after_id
-        after_id = ui.after(1000, check_queue, up)
+        after_id = ui.after(1000, check_queue, up, logs_len)
 
 
 def on_upload_failure(up: Uploader):
