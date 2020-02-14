@@ -1,6 +1,7 @@
 from http import HTTPStatus
-from multiprocessing import Queue
-from threading import Thread
+from queue import Queue
+from threading import Thread, Lock
+from tkinter import messagebox
 from typing import List
 
 import requests
@@ -8,28 +9,35 @@ from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
 from log import Log
-from tkinter import messagebox, Tk
 
 
 class Uploader:
     def __init__(self, queue: Queue):
         self.queue = queue
+        self.lock = Lock()
+        self.failed = False
+        self.failed_logs = []
+        self.workers = []
 
     def upload(self, logs: List[Log]):
         for log in logs:
-            self._upload(log)
+            try:
+                self._upload(log)
+            except UploadException as exc:
+                raise exc
 
     def parallel_upload(self, logs: List[Log]):
-        # Let's test how many connection we can manage.
+        # Too many connection may get cut by server.
         # One for each log proved already fatal => [WinError 10054]
 
         # Create a list of lists like [[log_1, log_5, log_9], [log_2, log_6], [log_3, log_7] ...]
-        split_by = 1  # Also number of threads opened
+        split_by = 4  # Also number of threads opened
         split_logs = [[log for i, log in enumerate(logs) if i % split_by == j] for j in range(split_by)]
         for logs in split_logs:
-            Thread(target=self.upload, args=(logs,)).start()
-        # t.daemon = True
-        # t.start()
+            t = Thread(target=self.upload, args=(logs,))
+            t.daemon = True
+            t.start()
+            self.workers.append(t)
 
     def _upload(self, log: Log):
         """
@@ -56,6 +64,16 @@ class Uploader:
                         log.link = re.json()["permalink"]
                         self.queue.put(log)
                         return log
-            except Exception:
-                Tk().withdraw()
-                messagebox.showerror("UploadError", f"Failed on file: {log.path}")
+            except requests.exceptions.ConnectionError:
+                with self.lock:
+                    self.failed_logs.append(log)
+            if self.failed_logs:
+                alive_workers = [worker for worker in self.workers if worker.is_alive()]
+                if len(alive_workers) <= 1:
+                    self.failed = True
+
+
+class UploadException(Exception):
+    def __init__(self, failed_logs: List[Log]):
+        self.failed_logs = failed_logs
+        super().__init__(f"Uploading following logs failed {self.failed_logs}")

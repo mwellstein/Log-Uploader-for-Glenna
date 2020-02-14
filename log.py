@@ -20,6 +20,9 @@ class Log:
         else:
             raise NoLogLinkError(self)
 
+    def __repr__(self):
+        return f"{self.boss}"
+
 
 class NoLogLinkError(Exception):
     def __init__(self, log: Log):

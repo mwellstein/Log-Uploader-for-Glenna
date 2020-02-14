@@ -1,17 +1,19 @@
-from threading import Thread
 from queue import Queue, Empty
+from threading import Thread, active_count
+from tkinter import filedialog, messagebox
+from typing import List
+
+from log import Log
 from log_collector import LogCollector
 from uploader import Uploader
 from user_interface import UserInterface
-from tkinter import filedialog
-from typing import List
-
 
 ui: UserInterface
 
 uploaded_logs = []
 upload_thread = Thread()
 upload_queue = Queue()
+after_id = 0
 
 
 def logic_ui(gui):
@@ -27,17 +29,8 @@ def click_upload():
     t.start()
 
 
-def click_reset():
-    t = Thread(target=_click_upload)
-    t.daemon = True
-    t.start()
-
-
 def _click_upload():
-    global uploaded_logs, upload_queue
-    if uploaded_logs and upload_thread and upload_queue:
-        _reset()
-    ui.uploadBtn.configure(text="Collecting")
+    ui.uploadBtn.configure(text="Collecting", state="disabled")
     raid_days = [day for i, day in enumerate(ui.weekdays) if ui.weekdaysVar[i].get()]
     logs = LogCollector(ui.logPath.get(), raid_days, ui.week_delta.get(), 200000, ui.fracVar.get())
     logs = logs.collect()
@@ -46,30 +39,55 @@ def _click_upload():
         # Finish, since nothing was uploaded
         ui.uploadPrg["maximum"] = 1
         ui.uploadPrg["value"] = 1
-        ui.uploadBtn["text"] = "No logs found."
+        ui.uploadBtn.configure(text="No logs found", state="normal")
     else:
         # Set up the progressbar
         ui.uploadPrg["value"] = 0
         ui.uploadPrg["maximum"] = len(logs)
         # Start the Log Upload
-        ui.uploadBtn.configure(text="Uploading")
-        uploaded_logs = []
-        upload_queue = Queue(len(logs))
-        up = Uploader(upload_queue)
-        up.parallel_upload(logs)
-        for _ in range(len(logs)):
-            uploaded_logs.append(str(upload_queue.get()))
-            ui.uploadPrg["value"] += 1
-        ui.uploadBtn.configure(text="Done")
+        _start_upload(logs)
+
+
+def _start_upload(logs: List[Log]):
+    ui.uploadBtn.configure(text="Uploading")
+    global uploaded_logs, upload_queue, after_id
+    uploaded_logs = []
+    upload_queue = Queue(len(logs))
+    up = Uploader(upload_queue)
+    up.parallel_upload(logs)
+    check_queue(up)
+    # ui.uploadBtn.configure(text="Done")
+
+
+def check_queue(up: Uploader):
+    print(active_count())
+    try:
+        uploaded_logs.append(str(upload_queue.get(block=False)))
+    except Empty:
+        pass
+    else:
+        ui.uploadPrg["value"] += 1
+    if up.failed:
+        on_upload_failure(up)
+    else:
+        global after_id
+        after_id = ui.after(1000, check_queue, up)
+
+
+def on_upload_failure(up: Uploader):
+    fail_string = ""
+    for fail in up.failed_logs:
+        fail_string += f"{fail.boss} "
+    if messagebox.askretrycancel("UploadError", f"Failed on file(s): {fail_string}"):
+        _start_upload(up.failed_logs)
+    else:
+        _reset()
 
 
 def _reset():
-    ui.uploadBtn.configure(text="Start Upload")
+    ui.uploadBtn.configure(text="Start Upload", state="normal")
     ui.copyButton.configure(text="Copy to Clipboard")
-    global uploaded_logs, upload_thread, upload_queue
-    uploaded_logs.clear()
-    upload_thread = Thread()
-    upload_queue = Queue()
+    ui.after_cancel(after_id)
 
 
 def click_copy():

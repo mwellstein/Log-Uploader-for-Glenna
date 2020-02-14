@@ -1,6 +1,7 @@
 from pathlib import Path
 from tkinter import Tk, BooleanVar, StringVar, IntVar
 from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox
+
 from interface_logic import *
 
 
@@ -59,14 +60,13 @@ class UserInterface(Tk):
         self.pastSpin.grid(row=1, sticky="W")
 
         # Start Frame
-        self.startButton = Button(self.startFrame, text="Start Upload", command=click_upload)
-        self.startButton.grid(column=0, row=0, sticky="W")
+        self.uploadBtn = Button(self.startFrame, text="Start Upload", command=click_upload)
+        self.uploadBtn.grid(column=0, row=0, sticky="W")
         self.fracVar = BooleanVar()
         self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
         self.fracCheck.grid(column=0, row=0, sticky="E")
-        self.progress = Progressbar(self.startFrame, length=200, mode="determinate")
-        self.progress.grid(column=0, row=1, sticky="W", pady=10)
-        self.uploaded_logs = []
+        self.uploadPrg = Progressbar(self.startFrame, length=200, mode="determinate")
+        self.uploadPrg.grid(column=0, row=1, sticky="W", pady=10)
 
         # Copy Frame
         self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=click_copy)
@@ -76,5 +76,5 @@ class UserInterface(Tk):
 if __name__ == "__main__":
     window = UserInterface()
     logic_ui(window)
-    window.protocol("WM_DELETE_WINDOW", lambda: print("Hello"))
+    window.protocol("WM_DELETE_WINDOW", lambda: window.destroy())
     window.mainloop()
