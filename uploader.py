@@ -21,10 +21,7 @@ class Uploader:
 
     def upload(self, logs: List[Log]):
         for log in logs:
-            try:
-                self._upload(log)
-            except UploadException as exc:
-                raise exc
+            self._upload(log)
 
     def parallel_upload(self, logs: List[Log]):
         # Too many connection may get cut by server.
@@ -71,9 +68,3 @@ class Uploader:
                 alive_workers = [worker for worker in self.workers if worker.is_alive()]
                 if len(alive_workers) <= 1:
                     self.failed = True
-
-
-class UploadException(Exception):
-    def __init__(self, failed_logs: List[Log]):
-        self.failed_logs = failed_logs
-        super().__init__(f"Uploading following logs failed {self.failed_logs}")
