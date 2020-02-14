@@ -1,11 +1,7 @@
-from multiprocessing import Process, freeze_support, Queue
 from pathlib import Path
-from queue import Empty
-from tkinter import Tk, BooleanVar, filedialog, StringVar, IntVar
+from tkinter import Tk, BooleanVar, StringVar, IntVar
 from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox
-
-from log_collector import LogCollector
-from uploader import Uploader
+from interface_logic import *
 
 
 class UserInterface(Tk):
@@ -53,7 +49,7 @@ class UserInterface(Tk):
         self.logPathLabel.grid(column=0, row=0, sticky="W")
         self.logPathText = Entry(self.pathFrame, text=self.logPath, width=30)
         self.logPathText.grid(column=0, row=1, sticky="W")
-        self.pathButton = Button(self.pathFrame, text="Select Folder", command=self.browse_button)
+        self.pathButton = Button(self.pathFrame, text="Select Folder", command=click_browse)
         self.pathButton.grid(column=1, row=1, sticky="W")
 
         # Past Frame
@@ -63,7 +59,7 @@ class UserInterface(Tk):
         self.pastSpin.grid(row=1, sticky="W")
 
         # Start Frame
-        self.startButton = Button(self.startFrame, text="Start Upload", command=self.click_start)
+        self.startButton = Button(self.startFrame, text="Start Upload", command=click_upload)
         self.startButton.grid(column=0, row=0, sticky="W")
         self.fracVar = BooleanVar()
         self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
@@ -73,71 +69,12 @@ class UserInterface(Tk):
         self.uploaded_logs = []
 
         # Copy Frame
-        self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=self.copy_to_clipboard)
+        self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=click_copy)
         self.copyButton.grid(column=0, row=0, sticky="W")
-
-    def click_start(self):
-        # Reset progress, kill processes, restart everything
-        self._reset()
-        self.startButton.configure(text="Uploading")
-        self.uploaded_logs = []
-        # [i for i, _ in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
-        # => No Need to compute weekday in Log(), still need day number
-        self.raid_days = [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]
-
-        logs = LogCollector(self.logPath.get(), self.raid_days, self.week_delta.get(), 200000, self.fracVar.get())
-        logs = logs.collect()
-
-        if not logs:
-            # Finish, since nothing was uploaded
-            self.progress["maximum"] = 1
-            self.progress["value"] = 1
-            self.startButton["text"] = "No logs found."
-        else:
-            # Set up the progressbar
-            self.progress["value"] = 0
-            self.progress["maximum"] = len(logs)
-            # Start the Log Upload
-            self.upload(logs)
-
-    def _reset(self):
-        self.copyButton.configure(text="Copy to Clipboard")
-        # self.p.terminate()
-
-    def click_reset(self):
-        # Add button
-        self.copyButton.configure(text="Copy to Clipboard")
-
-    def upload(self, logs):
-        q = Queue(len(logs))
-        up = Uploader(q)
-        poi = Process(target=up.parallel_upload, args=(logs,))
-        poi.start()
-        self.check_queue(q, poi)
-
-    def check_queue(self, q, p):
-        try:
-            self.uploaded_logs.append(str(q.get(block=False)))
-        except Empty:
-            pass
-        else:
-            self.progress["value"] += 1
-        if not p.is_alive():
-            self.startButton.configure(text="Done")
-        self.after(1000, self.check_queue, q, p)
-
-    def copy_to_clipboard(self):
-        self.clipboard_clear()
-        for log_line in self.uploaded_logs:
-            self.update()
-            self.clipboard_append(log_line + "\n")
-        self.copyButton.configure(text="Copied")
-
-    def browse_button(self):
-        self.logPath.set(filedialog.askdirectory())
 
 
 if __name__ == "__main__":
-    freeze_support()
-    app = UserInterface()
-    app.mainloop()
+    window = UserInterface()
+    logic_ui(window)
+    window.protocol("WM_DELETE_WINDOW", lambda: print("Hello"))
+    window.mainloop()

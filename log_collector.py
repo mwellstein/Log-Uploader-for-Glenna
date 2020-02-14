@@ -10,13 +10,13 @@ class LogCollector:
     The log collector takes all logs, filters through and holds on to the resulting logs
     """
 
-    def __init__(self, base: str, raid_days: List[str], week_delta: int, min_size: int, fracs: bool):
+    def __init__(self, base: str, raid_days: List[str], week_delta: int, min_size: int, fractals: bool):
         self.base = Path(base)
         self.raid_days = raid_days
         self.from_ = datetime.now() - timedelta(weeks=week_delta, days=datetime.now().weekday())
         self.until = self.from_ + timedelta(weeks=1)
         self.min_size = min_size
-        self.fracs = fracs
+        self.fractals = fractals
         self.raid_bosses = [
             "Tal-Wächter", "Gorseval der Facettenreiche", "Sabetha die Saboteurin",  # W1 GER
             "Vale Guardian", "Gorseval the Multifarious", "Sabetha the Saboteur",  # W1 ENG
@@ -45,7 +45,7 @@ class LogCollector:
 
     def collect(self):
         # Collect all boss directories
-        if self.fracs:
+        if self.fractals:
             boss_dirs = [boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.fractal_bosses]
         else:
             boss_dirs = [boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.raid_bosses]
