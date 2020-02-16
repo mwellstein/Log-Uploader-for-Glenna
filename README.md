@@ -4,38 +4,41 @@ Aus der Idee, ein Skript zu schreiben, dass für meine Raid Gruppe die wöchentl
 
 Da die Konfiguration im Code recht nervig geworden wäre - und ich es mal ausprobieren wollte - hab ich ein UI drum herum gebaut.
 
-Es werden logs ausgewählt, die:
- - in einem der Boss Ordner oder eins darunter (bei Sortierung nach Charakteren) liegen
- - größer sind als 200KB
- - in der Woche bzw. an dem Tag erstellt wurden, die eingestellt sind, wenn der Button gedrück wird
+Auswahl der Logs:
+- Es werden Logs ignoriert, die kleiner als 200KB sind
+- Es werden nur Logs an den gewählten Tagen in der gewählten Woche hochgeladen
+- Die Logs müssen nach Boss sortiert sein. Unterordner mit Charakteren werden ebenfalls durchsucht, sind aber nicht notwendig.
 
-Nur der neuste Log wird dabei hochgeladen.
+Nur der neuste Log pro Boss an den gewählten Tagen wird dabei hochgeladen.
 
-Es kann zu Fehlern kommen:
- - sollte der Upload zu oft nicht funktionieren, wird das Log ausgelassen
- - bei nochmaligem drücken des Start Buttons während dieser läd (und nicht hängt) => bringt die Ausgabe durcheinander
- - solltet ihr am selben Tag mit deutscher und englischer Sprache Boss mehrfach legen, werden diese seperat hochgeladen..
- - was ich vergessen/noch nicht gesehen habe
+Mögliche Auffälligkeiten:
+ - Logs, bei denen es zu Fehlern kam, sollten euch am Ende mitgeteilt werden, mit der Option es erneut zu versuchen.
+ - Spielt ihr am selben Tag sowohl mit englischem, als auch deutschem Client, werden beide seperat behandelt.
 
-Von den Fehlern solltet ihr allerdings nichts sehen. Das Programm würde einfach nichts tun.
+Wenn ihr Fehler findet oder etwas nicht funktioniert, meldet euch einfach.
 
-Wenn der Upload fertig ist ("Done" und Balken voll gefüllt), könnt ihr die Logs mit "Copy to Clipboard" kopieren.
+
+Der Upload ist fertig, wenn der Button auf "Done" steht und die Fortschrittsleiste ganz gefüllt ist.
+Sollt eins nicht zutreffen, könnt ihr mir das gerne schreiben. Vielleicht können wir den Grund nachvollziehen.
 
 Die Ausgabe sieht dann folgendermaßen aus:
 
 ```
-https://dps.report/Kf6U-20200205-192401_sh Seelenloser Schrecken 1
-https://dps.report/63Hp-20200205-192925_rr Fluss der Seelen 1
-https://dps.report/Pmrb-20200205-193835_bk Bezwungener König 1
-https://dps.report/BEFr-20200205-194236_se Seelenverzehrer 1
-https://dps.report/8UDr-20200205-194542_eyes Augen 1
-https://dps.report/m6GV-20200205-200534_dhuum Dhuum 3
-https://dps.report/XSwc-20200205-201418_ca Beschworene Verschmelzung 1
-https://dps.report/L6k4-20200205-202446_twins Largos-Zwillinge 1
-https://dps.report/d5pX-20200205-204126_qadim Qadim 1
-https://dps.report/j59y-20200205-210908_adina Kardinal Adina 1
-https://dps.report/fgb5-20200205-205902_sabir Kardinal Sabir 1
-https://dps.report/pGqE-20200205-212050_qpeer Qadim der Unvergleichliche 1
+https://dps.report/1111-20200216-214025_ice 1
+https://dps.report/1111-20200216-210840_cairn 1
+https://dps.report/1111-20200216-213209_dei 1
+https://dps.report/1111-20200216-205300_kc 1
+https://dps.report/1111-20200216-202720_trio 2
+https://dps.report/1111-20200216-203516_matt 1
+https://dps.report/1111-20200216-195527_gors 1
+https://dps.report/1111-20200216-205510_tc 1
+https://dps.report/1111-20200216-200308_sab 1
+https://dps.report/1111-20200216-201033_sloth 1
+https://dps.report/1111-20200216-212050_sam 1
+https://dps.report/1111-20200216-194308_vg 1
+https://dps.report/1111-20200216-211307_mo 1
+https://dps.report/1111-20200216-210234_xera 1
+https://dps.report/1111-20200216-214748_falln 1
 ```
 
-Dies entspricht dem Permalink zum hochgeladenen dps.report File, dem Bossnamen (Name des Ordners => englischer Client = englische Bossnamen) und der Anzahl der Versuche.
+Dies ist jeweils ein Link zu dps.report, sowie die Anzahl der Versuche, die an diesen Tagen der Woche dort benötigt wurden.
