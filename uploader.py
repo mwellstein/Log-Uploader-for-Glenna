@@ -55,8 +55,7 @@ class Uploader:
                                                             HTTPStatus.GATEWAY_TIMEOUT])))  # HTTP 504
                     re = session.post("https://dps.report/uploadContent?json=1", files={'file': log_file})
                     if re.status_code != 200:
-                        messagebox.showerror("UploadError", HTTPStatus(re.url, re.status_code))
-                        raise HTTPStatus(re.url, re.status_code)
+                        raise requests.exceptions.ConnectionError(f"{re.url}, {re.status_code}")
                     elif re.status_code == 200:
                         log.link = re.json()["permalink"]
                         self.queue.put(log)
