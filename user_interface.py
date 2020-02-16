@@ -1,6 +1,6 @@
 from pathlib import Path
 from tkinter import Tk, BooleanVar, StringVar, IntVar
-from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox
+from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox, Style
 
 from interface_logic import *
 
@@ -11,66 +11,71 @@ class UserInterface(Tk):
         self.title("Log Uploader for Glenna")
         self.geometry("500x350")
 
+        self.style = Style()
+        print(self.style.theme_names())
+        self.style.theme_use("clam")
+
         # Top Frame
         self.topFrame = Frame()
-        self.topFrame.grid(column=0, row=0, sticky="NW", padx=20, pady=20)
+        self.topFrame.place(relheight=0.7, relwidth=1.0)
         self.leftFrame = Frame(self.topFrame)
-        self.leftFrame.grid(column=0, row=0, sticky="NW", padx=20)
+        self.leftFrame.place(relheight=1.0, relwidth=0.3)
         self.rightFrame = Frame(self.topFrame)
-        self.rightFrame.grid(column=1, row=0, sticky="NW", padx=30)
+        self.rightFrame.place(relheight=1.0, relwidth=0.7, relx=0.3, rely=0.07)
 
         # Bottom Frame
         self.bottomFrame = Frame()
-        self.bottomFrame.grid(row=1)
+        self.bottomFrame.place(relheight=0.3, relwidth=1.0, rely=0.7)
 
         # Left Frame
         self.weekLabel = Label(self.leftFrame, text="When did you raid?")
-        self.weekLabel.grid(row=0)
+        self.weekLabel.place(relx=0.1, rely=0.1)
         self.raid_days = []
         self.weekdaysVar = []
         self.weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         for i, day in enumerate(self.weekdays):
             day_in = BooleanVar()
             day_button = Checkbutton(self.leftFrame, text=day, var=day_in)
-            day_button.grid(row=i + 1, sticky="W")
+            day_button.place(relx=0.1, rely=0.2 + 0.1 * i)
             self.weekdaysVar.append(day_in)
 
         # Right Frames
         self.pathFrame = Frame(self.rightFrame)
-        self.pathFrame.grid(column=0, row=0, sticky="W")
+        self.pathFrame.place(relheight=0.25, relwidth=1.0, rely=0.0)
         self.pastFrame = Frame(self.rightFrame)
-        self.pastFrame.grid(column=0, row=1, sticky="W")
+        self.pastFrame.place(relheight=0.25, relwidth=1.0, rely=0.25)
         self.startFrame = Frame(self.rightFrame)
-        self.startFrame.grid(column=0, row=2, sticky="W", pady=30)
+        self.startFrame.place(relheight=0.5, relwidth=1.0, rely=0.5)
 
         # Path Frame
         self.logPath = StringVar(
             value=Path().home() / "Documents" / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs")
         self.logPathLabel = Label(self.pathFrame, text="Path to the logs main folder:")
-        self.logPathLabel.grid(column=0, row=0, sticky="W")
+        self.logPathLabel.place(relx=0.1, rely=0.1)
         self.logPathText = Entry(self.pathFrame, text=self.logPath, width=30)
-        self.logPathText.grid(column=0, row=1, sticky="W")
+        self.logPathText.place(relwidth=0.5, relx=0.1, rely=0.4)
         self.pathButton = Button(self.pathFrame, text="Select Folder", command=click_browse)
-        self.pathButton.grid(column=1, row=1, sticky="W")
+        self.pathButton.place(relx=0.61, rely=0.4)
 
         # Past Frame
-        self.pastLabel = Label(self.pastFrame, text="Look into the past. (0 = this week)").grid(row=0, sticky="W")
+        self.pastLabel = Label(self.pastFrame, text="Select week to upload:")
+        self.pastLabel.place(relx=0.1, rely=0.1)
         self.week_delta = IntVar()
         self.pastSpin = Spinbox(self.pastFrame, textvariable=self.week_delta, from_=0, to=99, width=5)
-        self.pastSpin.grid(row=1, sticky="W")
+        self.pastSpin.place(relx=0.1, rely=0.5)
 
         # Start Frame
         self.uploadBtn = Button(self.startFrame, text="Start Upload", command=click_upload)
-        self.uploadBtn.grid(column=0, row=0, sticky="W")
+        self.uploadBtn.place(relx=0.1, rely=0.1)
         self.fracVar = BooleanVar()
         self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
-        self.fracCheck.grid(column=0, row=0, sticky="E")
+        self.fracCheck.place(relx=0.38, rely=0.1)
         self.uploadPrg = Progressbar(self.startFrame, length=200, mode="determinate")
-        self.uploadPrg.grid(column=0, row=1, sticky="W", pady=10)
+        self.uploadPrg.place(relx=0.1, rely=0.4)
 
         # Copy Frame
         self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=click_copy)
-        self.copyButton.grid(column=0, row=0, sticky="W")
+        self.copyButton.place(relx=0.5, rely=0.2, anchor="n")
 
 
 if __name__ == "__main__":
