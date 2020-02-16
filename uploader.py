@@ -1,7 +1,6 @@
 from http import HTTPStatus
 from queue import Queue
 from threading import Thread, Lock
-from tkinter import messagebox
 from typing import List
 
 import requests
