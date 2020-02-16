@@ -13,7 +13,7 @@ class UserInterface(Tk):
 
         self.style = Style()
         print(self.style.theme_names())
-        self.style.theme_use("clam")
+        self.style.theme_use("xpnative")
         self.style.configure("HeadLabel.TLabel", font=("Helvetica", 12))
         # Top Frame
         self.topFrame = Frame()
@@ -29,7 +29,7 @@ class UserInterface(Tk):
 
         # Left Frame
         self.weekLabel = Label(self.leftFrame, text="When did you raid?", style="HeadLabel.TLabel")
-        self.weekLabel.place(relx=0.1, rely=0.1)
+        self.weekLabel.place(relx=0.1, rely=0.09)
         self.raid_days = []
         self.weekdaysVar = []
         self.weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -50,7 +50,7 @@ class UserInterface(Tk):
         # Path Frame
         self.logPath = StringVar(
             value=Path().home() / "Documents" / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs")
-        self.logPathLabel = Label(self.pathFrame, text="Path to the logs main folder:", style="HeadLabel.TLabel")
+        self.logPathLabel = Label(self.pathFrame, text="Path to log directory:", style="HeadLabel.TLabel")
         self.logPathLabel.place(relx=0.1, rely=0.1)
         self.logPathText = Entry(self.pathFrame, text=self.logPath, width=30)
         self.logPathText.place(relwidth=0.5, relx=0.1, rely=0.5)
