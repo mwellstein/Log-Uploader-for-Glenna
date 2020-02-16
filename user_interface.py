@@ -1,6 +1,6 @@
 from pathlib import Path
 from tkinter import Tk, BooleanVar, StringVar, IntVar
-from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Spinbox, Style
+from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Style, Radiobutton
 
 from interface_logic import *
 
@@ -14,7 +14,7 @@ class UserInterface(Tk):
         self.style = Style()
         print(self.style.theme_names())
         self.style.theme_use("clam")
-
+        self.style.configure("HeadLabel.TLabel", font=("Helvetica", 12))
         # Top Frame
         self.topFrame = Frame()
         self.topFrame.place(relheight=0.7, relwidth=1.0)
@@ -28,7 +28,7 @@ class UserInterface(Tk):
         self.bottomFrame.place(relheight=0.3, relwidth=1.0, rely=0.7)
 
         # Left Frame
-        self.weekLabel = Label(self.leftFrame, text="When did you raid?")
+        self.weekLabel = Label(self.leftFrame, text="When did you raid?", style="HeadLabel.TLabel")
         self.weekLabel.place(relx=0.1, rely=0.1)
         self.raid_days = []
         self.weekdaysVar = []
@@ -50,26 +50,30 @@ class UserInterface(Tk):
         # Path Frame
         self.logPath = StringVar(
             value=Path().home() / "Documents" / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs")
-        self.logPathLabel = Label(self.pathFrame, text="Path to the logs main folder:")
+        self.logPathLabel = Label(self.pathFrame, text="Path to the logs main folder:", style="HeadLabel.TLabel")
         self.logPathLabel.place(relx=0.1, rely=0.1)
         self.logPathText = Entry(self.pathFrame, text=self.logPath, width=30)
-        self.logPathText.place(relwidth=0.5, relx=0.1, rely=0.4)
+        self.logPathText.place(relwidth=0.5, relx=0.1, rely=0.5)
         self.pathButton = Button(self.pathFrame, text="Select Folder", command=click_browse)
-        self.pathButton.place(relx=0.61, rely=0.4)
+        self.pathButton.place(relx=0.61, rely=0.45)
 
         # Past Frame
-        self.pastLabel = Label(self.pastFrame, text="Select week to upload:")
+        self.pastLabel = Label(self.pastFrame, text="Select week to upload:", style="HeadLabel.TLabel")
         self.pastLabel.place(relx=0.1, rely=0.1)
         self.week_delta = IntVar()
-        self.pastSpin = Spinbox(self.pastFrame, textvariable=self.week_delta, from_=0, to=99, width=5)
-        self.pastSpin.place(relx=0.1, rely=0.5)
+        self.weekRadio1 = Radiobutton(self.pastFrame, text="Current", variable=self.week_delta, value=0)
+        self.weekRadio1.place(relx=0.1, rely=0.5)
+        self.weekRadio2 = Radiobutton(self.pastFrame, text="Last", variable=self.week_delta, value=1)
+        self.weekRadio2.place(relx=0.33, rely=0.5)
+        self.weekRadio3 = Radiobutton(self.pastFrame, text="Second-last", variable=self.week_delta, value=2)
+        self.weekRadio3.place(relx=0.5, rely=0.5)
 
         # Start Frame
         self.uploadBtn = Button(self.startFrame, text="Start Upload", command=click_upload)
         self.uploadBtn.place(relx=0.1, rely=0.1)
         self.fracVar = BooleanVar()
         self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
-        self.fracCheck.place(relx=0.38, rely=0.1)
+        self.fracCheck.place(relx=0.38, rely=0.125)
         self.uploadPrg = Progressbar(self.startFrame, length=200, mode="determinate")
         self.uploadPrg.place(relx=0.1, rely=0.4)
 
