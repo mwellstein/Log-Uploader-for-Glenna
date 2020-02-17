@@ -6,7 +6,7 @@ class Log:
     def __init__(self, path: Path, boss: str):
         self.path = path
         self.boss = boss
-        file_info = path.stat()
+        file_info = self.path.stat()
         self.created = file_info.st_ctime
         self.modified = file_info.st_mtime
         self.size = file_info.st_size
