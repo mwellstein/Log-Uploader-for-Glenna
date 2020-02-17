@@ -73,7 +73,10 @@ class UserInterface(Tk):
         self.uploadBtn.place(relx=0.1, rely=0.1)
         self.fracVar = BooleanVar()
         self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
-        self.fracCheck.place(relx=0.38, rely=0.125)
+        self.fracCheck.place(relx=0.38, rely=0.05)
+        self.reupVar = BooleanVar()
+        self.reuploadCheck = Checkbutton(self.startFrame, text="Reupload all selected", var=self.reupVar)
+        self.reuploadCheck.place(relx=0.38, rely=0.2)
         self.uploadPrg = Progressbar(self.startFrame, length=200, mode="determinate")
         self.uploadPrg.place(relx=0.1, rely=0.4)
 

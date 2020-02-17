@@ -56,6 +56,13 @@ def _click_upload() -> None:
     logs = LogCollector(ui.logPath.get(), raid_days, ui.week_delta.get(), 200000, ui.fracVar.get())
     logs = logs.collect()
 
+    # If Reupload is not True, go ahead and delete all logs, that were already uploaded
+    if not ui.reupVar.get():
+        for up_log in uploaded_logs:
+            for i, to_up_log in enumerate(logs):
+                if up_log.path == to_up_log.path:
+                    logs.pop(i)
+
     if not logs:
         # Finish, since nothing was uploaded
         ui.uploadPrg["maximum"] = 1
@@ -93,7 +100,7 @@ def check_queue(up: Uploader, logs_len: int) -> None:
     :param logs_len: The amount of logs that shall be uploaded to check for completing of the job
     """
     try:
-        uploaded_logs.append(str(upload_queue.get(block=False)))
+        uploaded_logs.append(upload_queue.get(block=False))
     except Empty:
         pass
     else:
@@ -138,7 +145,7 @@ def click_copy() -> None:
     ui.clipboard_clear()
     for log_line in uploaded_logs:
         ui.update()
-        ui.clipboard_append(log_line + "\n")
+        ui.clipboard_append(str(log_line) + "\n")
     ui.copyButton.configure(text="Copied")
 
 
