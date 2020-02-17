@@ -13,7 +13,8 @@ class LogCollector:
     def __init__(self, base: str, raid_days: List[str], week_delta: int, min_size: int, fractals: bool):
         self.base = Path(base)
         self.raid_days = raid_days
-        self.from_ = datetime.now() - timedelta(weeks=week_delta, days=datetime.now().weekday())
+        self.from_ = datetime.combine(datetime.now() - timedelta(weeks=week_delta, days=datetime.now().weekday()),
+                                      datetime.min.time())
         self.until = self.from_ + timedelta(weeks=1)
         self.min_size = min_size
         self.fractals = fractals
