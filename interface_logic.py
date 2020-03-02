@@ -3,6 +3,7 @@ Handle the inputs from the user interface.
 All functions (mostly clicks and help functions) are down below.
 Only design changes will be label text and progressbar.
 """
+from datetime import datetime
 from queue import Queue, Empty
 from threading import Thread
 from tkinter import filedialog, messagebox
@@ -40,6 +41,10 @@ def click_upload() -> None:
     Handles the click to start upload. Opens a new thread to handle everything related to the upload.
     This new thread becomes the global upload_thread
     """
+    days_selected = [day for day in ui.weekdaysVar if day.get()]
+    if not days_selected:
+        today = datetime.now().weekday()
+        ui.weekdaysVar[today].set(True)
     t = Thread(target=_click_upload)
     t.daemon = True
     global upload_thread
@@ -83,8 +88,7 @@ def _start_upload(logs: List[Log]) -> None:
     :param logs: The logs that shall get uploaded by the uploader instance
     """
     ui.uploadBtn.configure(text="Uploading")
-    global uploaded_logs, upload_queue
-    uploaded_logs = []
+    global upload_queue
     upload_queue = Queue(len(logs))
     up = Uploader(upload_queue)
     up.parallel_upload(logs)
@@ -100,13 +104,15 @@ def check_queue(up: Uploader, logs_len: int) -> None:
     :param logs_len: The amount of logs that shall be uploaded to check for completing of the job
     """
     try:
-        uploaded_logs.append(upload_queue.get(block=False))
+        uploaded_log = upload_queue.get(block=False)
     except Empty:
         pass
     else:
+        uploaded_logs.append(uploaded_log)
         ui.uploadPrg["value"] += 1
 
     if len(uploaded_logs) == logs_len:
+
         ui.uploadBtn.configure(text="Done", state="normal")
     elif up.failed:
         on_upload_failure(up)

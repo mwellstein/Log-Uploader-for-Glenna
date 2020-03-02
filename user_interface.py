@@ -30,7 +30,6 @@ class UserInterface(Tk):
         # Left Frame
         self.weekLabel = Label(self.leftFrame, text="When did you raid?", style="HeadLabel.TLabel")
         self.weekLabel.place(relx=0.1, rely=0.09)
-        self.raid_days = []
         self.weekdaysVar = []
         self.weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         for i, day in enumerate(self.weekdays):
