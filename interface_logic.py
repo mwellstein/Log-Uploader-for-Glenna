@@ -41,10 +41,12 @@ def click_upload() -> None:
     Handles the click to start upload. Opens a new thread to handle everything related to the upload.
     This new thread becomes the global upload_thread
     """
+    # If no day was specified, default to today
     days_selected = [day for day in ui.weekdaysVar if day.get()]
     if not days_selected:
         today = datetime.now().weekday()
         ui.weekdaysVar[today].set(True)
+    # Start thread for further work
     t = Thread(target=_click_upload)
     t.daemon = True
     global upload_thread
@@ -58,17 +60,20 @@ def _click_upload() -> None:
     """
     ui.uploadBtn.configure(text="Collecting", state="disabled")
     raid_days = [day for i, day in enumerate(ui.weekdays) if ui.weekdaysVar[i].get()]
-    logs = LogCollector(ui.logPath.get(), raid_days, ui.week_delta.get(), 200000, ui.fracVar.get())
-    logs = logs.collect()
+    to_up_logs = LogCollector(ui.logPath.get(), raid_days, ui.week_delta.get(), 200000, ui.fracVar.get())
+    to_up_logs = to_up_logs.collect()
 
-    # If Reupload is not True, go ahead and delete all logs, that were already uploaded
+    # If Reupload is not True, go ahead and delete all upload log tasks, that were already uploaded
     if not ui.reupVar.get():
         for up_log in uploaded_logs:
-            for i, to_up_log in enumerate(logs):
+            for i, to_up_log in enumerate(to_up_logs):
                 if up_log.path == to_up_log.path:
-                    logs.pop(i)
+                    to_up_logs.pop(i)
+    else:
+        # If reupload is True, reset uploaded logs
+        uploaded_logs.clear()
 
-    if not logs:
+    if not to_up_logs:
         # Finish, since nothing was uploaded
         ui.uploadPrg["maximum"] = 1
         ui.uploadPrg["value"] = 1
@@ -76,9 +81,9 @@ def _click_upload() -> None:
     else:
         # Set up the progressbar
         ui.uploadPrg["value"] = 0
-        ui.uploadPrg["maximum"] = len(logs)
+        ui.uploadPrg["maximum"] = len(to_up_logs)
         # Start the Log Upload
-        _start_upload(logs)
+        _start_upload(to_up_logs)
 
 
 def _start_upload(logs: List[Log]) -> None:
@@ -87,12 +92,15 @@ def _start_upload(logs: List[Log]) -> None:
     Not part of _click_upload to enable call from on_upload_failure with the remaining logs.
     :param logs: The logs that shall get uploaded by the uploader instance
     """
+    # For multiple uploads, offset is needed, to ensure that check_queue finishes correctly len(uploaded) == len(to_up)
+    reup_offset = len(uploaded_logs)
+
     ui.uploadBtn.configure(text="Uploading")
     global upload_queue
     upload_queue = Queue(len(logs))
     up = Uploader(upload_queue)
     up.parallel_upload(logs)
-    check_queue(up, len(logs))
+    check_queue(up, len(logs) + reup_offset)
 
 
 def check_queue(up: Uploader, logs_len: int) -> None:
@@ -112,7 +120,6 @@ def check_queue(up: Uploader, logs_len: int) -> None:
         ui.uploadPrg["value"] += 1
 
     if len(uploaded_logs) == logs_len:
-
         ui.uploadBtn.configure(text="Done", state="normal")
     elif up.failed:
         on_upload_failure(up)
@@ -160,3 +167,10 @@ def click_browse() -> None:
     Open up filedialog to get main log directory
     """
     ui.logPath.set(filedialog.askdirectory())
+
+
+def click_clear_cache() -> None:
+    """
+    Clear all already uploaded logs. So that Copy to Clipboard will not copy those anymore.
+    """
+    uploaded_logs.clear()

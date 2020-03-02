@@ -74,7 +74,7 @@ class UserInterface(Tk):
         self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
         self.fracCheck.place(relx=0.38, rely=0.05)
         self.reupVar = BooleanVar()
-        self.reuploadCheck = Checkbutton(self.startFrame, text="Reupload all selected", var=self.reupVar)
+        self.reuploadCheck = Checkbutton(self.startFrame, text="Reupload", var=self.reupVar)
         self.reuploadCheck.place(relx=0.38, rely=0.2)
         self.uploadPrg = Progressbar(self.startFrame, length=200, mode="determinate")
         self.uploadPrg.place(relx=0.1, rely=0.4)
@@ -82,6 +82,8 @@ class UserInterface(Tk):
         # Copy Frame
         self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=click_copy)
         self.copyButton.place(relx=0.5, rely=0.2, anchor="n")
+        self.clearCacheButton = Button(self.bottomFrame, text="Clear Uploaded", command=click_clear_cache)
+        self.clearCacheButton.place(relx=0.5, rely=0.6, anchor="n")
 
 
 if __name__ == "__main__":
