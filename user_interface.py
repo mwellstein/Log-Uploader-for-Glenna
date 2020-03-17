@@ -1,6 +1,7 @@
 from pathlib import Path
 from tkinter import Tk, BooleanVar, StringVar, IntVar
 from tkinter.ttk import Progressbar, Frame, Label, Checkbutton, Button, Entry, Style, Radiobutton
+import ctypes.wintypes
 
 from interface_logic import *
 
@@ -47,8 +48,15 @@ class UserInterface(Tk):
         self.startFrame.place(relheight=0.5, relwidth=1.0, rely=0.5)
 
         # Path Frame
+        # -----
+        # https://stackoverflow.com/a/30924555
+        csidl_personal = 5  # My Documents
+        shgfp_type_current = 0  # Get current, not default value
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(None, csidl_personal, None, shgfp_type_current, buf)
+        # -----
         self.logPath = StringVar(
-            value=Path().home() / "Documents" / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs")
+            value=Path(buf.value) / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs")
         self.logPathLabel = Label(self.pathFrame, text="Path to log directory:", style="HeadLabel.TLabel")
         self.logPathLabel.place(relx=0.1, rely=0.1)
         self.logPathText = Entry(self.pathFrame, text=self.logPath, width=30)
