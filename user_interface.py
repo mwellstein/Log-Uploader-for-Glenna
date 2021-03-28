@@ -48,7 +48,7 @@ class UserInterface(Tk):
         self.startFrame.place(relheight=0.5, relwidth=1.0, rely=0.5)
 
         # Path Frame
-        # -----
+        # ----
         # https://stackoverflow.com/a/30924555
         csidl_personal = 5  # My Documents
         shgfp_type_current = 0  # Get current, not default value
