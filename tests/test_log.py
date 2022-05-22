@@ -28,3 +28,7 @@ class TestLog(unittest.TestCase):
         with self.assertRaises(NoLogLinkError):
             str(self.log)
         self.assertEqual(repr(self.log), "Xera")
+
+
+if __name__ == '__main__':
+    unittest.main()
