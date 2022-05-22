@@ -42,3 +42,7 @@ https://dps.report/1111-20200216-214748_falln 1
 ```
 
 Dies ist jeweils ein Link zu dps.report, sowie die Anzahl der Versuche, die an diesen Tagen der Woche dort benötigt wurden.
+
+# Build
+From the source root:
+`pyinstaller --onefile -w -n "Log Uploader for Glenna v2.1" user_interface.py`
