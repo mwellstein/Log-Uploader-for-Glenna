@@ -38,8 +38,8 @@ class LogCollector:
             # Strikes GER
             "Icebrood Construct", "Voice of the Fallen", "Fraenir of Jormag", "Boneskinner", "Whisper of Jormag",
             "Freezie",  # Strikes ENG
-            "Kapitän Mai Trin", "Ankka", "Minister Lee", "Die Drachenleere"  # EoD Strikes GER
-            "Captain Mai Trin", "Ankka", "Minister Lee", "The Dragonvoid"  # EoD Strikes ENG
+            "Kapitän Mai Trin", "Ankka", "Minister Li", "Die Drachenleere"  # EoD Strikes GER
+            "Captain Mai Trin", "Ankka", "Minister Li", "The Dragonvoid"  # EoD Strikes ENG
         ]
         self.fractal_bosses = [
             "MAMA", "Albtraum-Oratuss", "Ensolyss der endlosen Pein", "Skorvald der Zerschmetterte",
