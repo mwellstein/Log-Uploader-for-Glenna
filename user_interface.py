@@ -90,6 +90,7 @@ class UserInterface(Tk):
         self.raidCheck = Checkbutton(self.startFrame, text="Raids", var=self.raidVar)
         self.raidCheck.place(relx=0.1, rely=0.65)
         self.strikeVar = BooleanVar()
+        self.strikeVar.set(True)
         self.strikeCheck = Checkbutton(self.startFrame, text="Strikes", var=self.strikeVar)
         self.strikeCheck.place(relx=0.28, rely=0.65)
         self.fracVar = BooleanVar()
