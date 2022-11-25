@@ -75,11 +75,9 @@ def _click_upload() -> None:
 
     if not to_up_logs:
         # Finish, since nothing was uploaded
-        ui.progressBar.adjustSize(0)
-        # ui.uploadPrg["maximum"] = 1
-        # ui.uploadPrg["value"] = 1
-        ui.uploadButton.setText("No logs found.")
-        # ui.uploadBtn.configure(text="No logs found", state="normal")
+        ui.uploadPrg["maximum"] = 1
+        ui.uploadPrg["value"] = 1
+        ui.uploadBtn.configure(text="No logs found", state="normal")
     else:
         # Set up the progressbar
         ui.uploadPrg["value"] = 0
