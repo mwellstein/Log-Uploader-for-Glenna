@@ -10,13 +10,16 @@ class LogCollector:
     The log collector takes all logs, filters through and holds on to the resulting logs
     """
 
-    def __init__(self, base: str, raid_days: List[str], week_delta: int, min_size: int, fractals: bool):
+    def __init__(self, base: str, raid_days: List[str], week_delta: int, min_size: int,
+                 raids: bool, strikes: bool, fractals: bool):
         self.base = Path(base)
         self.raid_days = raid_days
         self.from_ = datetime.combine(datetime.now() - timedelta(weeks=week_delta, days=datetime.now().weekday()),
                                       datetime.min.time())
         self.until = self.from_ + timedelta(weeks=1)
         self.min_size = min_size
+        self.raids = raids
+        self.strikes = strikes
         self.fractals = fractals
         self.raid_bosses = [
             "Tal-Wächter", "Gorseval der Facettenreiche", "Sabetha die Saboteurin",  # W1 GER
@@ -33,13 +36,15 @@ class LogCollector:
             "Beschworene Verschmelzung", "Nikare", "Qadim",  # W6 GER
             "Conjured Amalgamate",  # W6 ENG
             "Kardinal Adina", "Kardinal Sabir", "Qadim der Unvergleichliche",  # W7 GER
-            "Cardinal Adina", "Cardinal Sabir", "Qadim the Peerless",  # W7 GER
+            "Cardinal Adina", "Cardinal Sabir", "Qadim the Peerless"  # W7 GER
+        ]
+        self.strike_bosses = [
             "Eisbrut-Konstrukt", "Stimme der Gefallenen", "Fraenir Jormags", "Knochenhäuter", "Stimme der Gefallenen",
             # Strikes GER
             "Icebrood Construct", "Voice of the Fallen", "Fraenir of Jormag", "Boneskinner", "Whisper of Jormag",
             "Freezie",  # Strikes ENG
-            "Kapitän Mai Trin", "Ankka", "Minister Li", "Die Drachenleere",  # EoD Strikes GER
-            "Captain Mai Trin", "Ankka", "Minister Li", "The Dragonvoid"  # EoD Strikes ENG
+            "Kapitän Mai Trin", "Ankka", "Minister Li", "Die Drachenleere", "Prototyp Vermillion",  # EoD Strikes GER
+            "Captain Mai Trin", "Ankka", "Minister Li", "The Dragonvoid", "Prototype Vermilion"  # EoD Strikes ENG
         ]
         self.fractal_bosses = [
             "MAMA", "Albtraum-Oratuss", "Ensolyss der endlosen Pein", "Skorvald der Zerschmetterte",
@@ -48,12 +53,19 @@ class LogCollector:
 
     def collect(self):
         # Collect all boss directories
+        dirs = []
+        if self.raids:
+            dirs.extend([boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.raid_bosses])
+        if self.strikes:
+            dirs.extend([boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.strike_bosses])
         if self.fractals:
-            boss_dirs = [boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.fractal_bosses]
-        else:
-            boss_dirs = [boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.raid_bosses]
+            dirs.extend([boss for boss in self.base.iterdir() if boss.is_dir() and boss.name in self.fractal_bosses])
+
+        if not dirs:
+            return
+
         latest_logs = []
-        for boss_dir in boss_dirs:
+        for boss_dir in dirs:
             logs = [Log(path, boss_dir.name) for path in _collect(boss_dir)]
             logs = self.filter(logs)
             # If there are any logs

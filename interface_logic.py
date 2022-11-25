@@ -1,7 +1,7 @@
 """
 Handle the inputs from the user interface.
 All functions (mostly clicks and help functions) are down below.
-Only design changes will be label text and progressbar.
+The only ui changes will be labels and progress on the progressbar.
 """
 from datetime import datetime
 from queue import Queue, Empty
@@ -60,7 +60,8 @@ def _click_upload() -> None:
     """
     ui.uploadBtn.configure(text="Collecting", state="disabled")
     raid_days = [day for i, day in enumerate(ui.weekdays) if ui.weekdaysVar[i].get()]
-    to_up_logs = LogCollector(ui.logPath.get(), raid_days, ui.week_delta.get(), 200000, ui.fracVar.get())
+    to_up_logs = LogCollector(ui.logPath.get(), raid_days, ui.week_delta.get(), 200000,
+                              ui.raidVar.get(), ui.strikeVar.get(), ui.fracVar.get())
     to_up_logs = to_up_logs.collect()
 
     # If Reupload is not True, go ahead and delete all upload log tasks, that were already uploaded

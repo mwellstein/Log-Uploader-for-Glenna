@@ -56,7 +56,7 @@ class UserInterface(Tk):
         ctypes.windll.shell32.SHGetFolderPathW(None, csidl_personal, None, shgfp_type_current, buf)
         # -----
         self.logPath = StringVar(
-            value=Path(buf.value) / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs")
+            value=str(Path(buf.value) / "Guild Wars 2" / "addons" / "arcdps" / "arcdps.cbtlogs"))
         self.logPathLabel = Label(self.pathFrame, text="Path to log directory:", style="HeadLabel.TLabel")
         self.logPathLabel.place(relx=0.1, rely=0.1)
         self.logPathText = Entry(self.pathFrame, text=self.logPath, width=30)
@@ -78,14 +78,23 @@ class UserInterface(Tk):
         # Start Frame
         self.uploadBtn = Button(self.startFrame, text="Start Upload", command=click_upload)
         self.uploadBtn.place(relx=0.1, rely=0.1)
-        self.fracVar = BooleanVar()
-        self.fracCheck = Checkbutton(self.startFrame, text="Upload Fractals", var=self.fracVar)
-        self.fracCheck.place(relx=0.38, rely=0.05)
+
         self.reupVar = BooleanVar()
         self.reuploadCheck = Checkbutton(self.startFrame, text="Reupload", var=self.reupVar)
-        self.reuploadCheck.place(relx=0.38, rely=0.2)
+        self.reuploadCheck.place(relx=0.38, rely=0.11)
         self.uploadPrg = Progressbar(self.startFrame, length=200, mode="determinate")
         self.uploadPrg.place(relx=0.1, rely=0.4)
+
+        self.raidVar = BooleanVar()
+        self.raidVar.set(True)
+        self.raidCheck = Checkbutton(self.startFrame, text="Raids", var=self.raidVar)
+        self.raidCheck.place(relx=0.1, rely=0.65)
+        self.strikeVar = BooleanVar()
+        self.strikeCheck = Checkbutton(self.startFrame, text="Strikes", var=self.strikeVar)
+        self.strikeCheck.place(relx=0.28, rely=0.65)
+        self.fracVar = BooleanVar()
+        self.fracCheck = Checkbutton(self.startFrame, text="Fractals", var=self.fracVar)
+        self.fracCheck.place(relx=0.48, rely=0.65)
 
         # Copy Frame
         self.copyButton = Button(self.bottomFrame, text="Copy to Clipboard", command=click_copy)
