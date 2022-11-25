@@ -89,8 +89,8 @@ def _click_upload() -> None:
 
 def _start_upload(logs: List[Log]) -> None:
     """
-    Setting up the queue and Uploader instance. Than starts uploading and initialize checking of the queue.
-    Not part of _click_upload to enable call from on_upload_failure with the remaining logs.
+    Setting up the queue and Uploader instance. Then starts uploading and initialize checking of the queue.
+    Not part of _click_upload to enable call from on_upload_failure with the remaining logs
     :param logs: The logs that shall get uploaded by the uploader instance
     """
     # For multiple uploads, offset is needed, to ensure that check_queue finishes correctly len(uploaded) == len(to_up)
@@ -106,7 +106,7 @@ def _start_upload(logs: List[Log]) -> None:
 
 def check_queue(up: Uploader, logs_len: int) -> None:
     """
-    To have a working progressbar and kinda error handling from the upload subthreads the queue will be checked
+    To have a working progressbar and kinda error handling from the upload threads the queue will be checked
     every second if it's filled. If not ignore, else update progressbar.
     Check if all logs got uploaded or if an error happened during the upload. Lastly call again after 1 second
     :param up: The Uploader instance to give it as kinda error handle for on_failure
@@ -145,11 +145,11 @@ def on_upload_failure(up: Uploader) -> None:
 
 def _reset() -> None:
     """
-    As much reset as possible. Can't terminate threads easily, thus tried to cancel them by themself
+    As much reset as possible. Can't terminate threads easily, thus tried to cancel them by themselves
     """
     ui.uploadBtn.configure(text="Start Upload", state="normal")
     ui.copyButton.configure(text="Copy to Clipboard")
-    ui.after_cancel(after_id)
+    ui.after_cancel(str(after_id))
 
 
 def click_copy() -> None:
