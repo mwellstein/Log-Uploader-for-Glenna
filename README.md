@@ -1,15 +1,15 @@
 # Log Uploader for Glenna
 
-Aus der Idee, ein Skript zu schreiben, dass für meine Raid Gruppe die wöchentlichen Logs hochläd enstanden.
+Aus der Idee, ein Skript zu schreiben, dass für meine Raid Gruppe die wöchentlichen Logs hochlädt entstanden.
 
-Da die Konfiguration im Code recht nervig geworden wäre - und ich es mal ausprobieren wollte - hab ich ein UI drum herum gebaut.
+Da die Konfiguration im Code recht nervig geworden wäre - und ich es mal ausprobieren wollte - hab ich ein UI drumherum gebaut.
 
 Auswahl der Logs:
-- Es werden Logs ignoriert, die kleiner als 200KB sind
+- Es werden Logs ignoriert, die kleiner als 200 KB sind
 - Es werden nur Logs an den gewählten Tagen in der gewählten Woche hochgeladen
 - Die Logs müssen nach Boss sortiert sein. Unterordner mit Charakteren werden ebenfalls durchsucht, sind aber nicht notwendig.
 
-Nur der neuste Log pro Boss an den gewählten Tagen wird dabei hochgeladen.
+Nur das neuste Log pro Boss an den gewählten Tagen wird dabei hochgeladen.
 
 Mögliche Auffälligkeiten:
  - Logs, bei denen es zu Fehlern kam, sollten euch am Ende mitgeteilt werden, mit der Option es erneut zu versuchen.
