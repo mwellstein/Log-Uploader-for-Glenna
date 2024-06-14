@@ -6,16 +6,13 @@ The only ui changes will be labels and progress on the progressbar.
 from datetime import datetime
 from queue import Queue, Empty
 from threading import Thread
-from tkinter import filedialog, messagebox
+from tkinter import messagebox
 from typing import List
 
-from log import Log
-from log_collector import LogCollector
-from uploader import Uploader
-from user_interface import UserInterface
+from .log import Log
+from .collector import LogCollector
+from .uploader import Uploader
 
-# To handle changes and variables of the ui, without circle import, assign the ui from user_interface
-ui: UserInterface
 
 # The current used container to collect the logs, the active thread that manages uploading
 # and the queue to retrieve upload information
@@ -58,22 +55,6 @@ def _click_upload() -> None:
     """
     Called in upload_thread, disables button, than collects all relevant setting in the ui and collects relevant logs.
     """
-    ui.uploadBtn.configure(text="Collecting", state="disabled")
-    raid_days = [day for i, day in enumerate(ui.weekdays) if ui.weekdaysVar[i].get()]
-    to_up_logs = LogCollector(ui.logPath.get(), raid_days, ui.week_delta.get(), 200000,
-                              ui.raidVar.get(), ui.strikeVar.get(), ui.fracVar.get())
-    to_up_logs = to_up_logs.collect()
-
-    # If Reupload is not True, go ahead and delete all upload log tasks, that were already uploaded
-    if not ui.reupVar.get():
-        for up_log in uploaded_logs:
-            for i, to_up_log in enumerate(to_up_logs):
-                if up_log.path == to_up_log.path:
-                    to_up_logs.pop(i)
-    else:
-        # If reupload is True, reset uploaded logs
-        uploaded_logs.clear()
-
     if not to_up_logs:
         # Finish, since nothing was uploaded
         ui.uploadPrg["maximum"] = 1
@@ -163,15 +144,10 @@ def click_copy() -> None:
     ui.copyButton.configure(text="Copied")
 
 
-def click_browse() -> None:
-    """
-    Open up filedialog to get main log directory
-    """
-    ui.logPath.set(filedialog.askdirectory())
-
-
 def click_clear_cache() -> None:
     """
     Clear all already uploaded logs. So that Copy to Clipboard will not copy those anymore.
     """
     uploaded_logs.clear()
+
+

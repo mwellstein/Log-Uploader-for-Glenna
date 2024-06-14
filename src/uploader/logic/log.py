@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class Log:
-    def __init__(self, path: Path, boss: str):
+    def __init__(self, controller, path: Path, boss: str):
         self.path = path
         self.boss = boss
         file_info = self.path.stat()
@@ -11,12 +11,13 @@ class Log:
         self.modified = file_info.st_mtime
         self.size = file_info.st_size
         self.day = datetime.fromtimestamp(self.created).strftime("%A")
-        self.try_ = 0
+        self.kill_try_nr = 0
         self.link = ""
+        self.controller = controller
 
     def __str__(self):
         if self.link:
-            return f"{self.link} {self.try_}"
+            return f"{self.link} {self.kill_try_nr}"
         else:
             raise NoLogLinkError(self)
 

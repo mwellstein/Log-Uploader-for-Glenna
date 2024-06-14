@@ -47,4 +47,4 @@ Dies ist jeweils ein Link zu dps.report, sowie die Anzahl der Versuche, die an d
 
 # Build
 Um die ausführbare Datei zu erhalten, braucht es pyinstaller mit folgendem Kommando:
-`pyinstaller --onefile -w -n "Log Uploader for Glenna vX.X" user_interface.py`
+`pyinstaller --onefile --paths venv\Lib\site-packages -w -n "Log Uploader for Glenna vX.Y" "Log Uploader for Glenna\app.py"`
