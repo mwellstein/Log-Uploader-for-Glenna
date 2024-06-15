@@ -19,7 +19,7 @@ class DaySelector(CTkFrame):
 
         self.controller = None
 
-    def get_selected_days(self):
+    def get_selected_days(self) -> [str]:
         # If no box is checked set to today
         if not any([day for day in self.weekdaysVar if day.get()]):
             today = datetime.now().weekday()

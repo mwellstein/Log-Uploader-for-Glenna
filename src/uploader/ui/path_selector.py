@@ -34,5 +34,5 @@ class PathSelector(CTkFrame):
         """
         self.logPath.set(filedialog.askdirectory())
 
-    def get_path(self):
+    def get_path(self) -> str:
         return self.logPath.get()

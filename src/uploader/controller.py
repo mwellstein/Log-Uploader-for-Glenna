@@ -3,6 +3,9 @@ Handle the inputs from the user interface.
 All functions (mostly clicks and help functions) are down below.
 The only ui changes will be labels and progress on the progressbar.
 """
+import asyncio
+import logging
+import threading
 from queue import Queue
 from threading import Thread
 
@@ -10,97 +13,48 @@ from logic.collector import LogCollector
 from logic.uploader import Uploader
 
 
-
 class Controller:
     def __init__(self, model, view):
         self.model = model
         self.view = view
-        self.collect_thread = Thread(target=self.model.collect_logs, args=(self, path, days, week_delta, raids, strikes, fracs))
-        self.collect_thread.daemon = True
-        self.collect_thread.start()
-        self.upload_threads = [Thread(target=self.model.upload_log, args=(self,)) for _ in range(6)]
-        for thread in self.upload_threads:
-            thread.start()
-
-
-class Controller2:
-    def __init__(self, model, view):
-        self.model = model
-        self.view = view
-        self.collect_thread = None
-        self.collect_queue = Queue()
-        self.collect_size_queue = Queue()
-        self.upload_threads = [Thread(target=self._upload_log) for _ in range(6)]
-        for thread in self.upload_threads:
-            thread.start()
-        self.uploaded_queue = Queue()
-        self.failed_up_queue = Queue()
-        self.log_count = 0
 
     def show_error(self, title, msg, tb):
+        """Open an error box with error information"""
         self.view.show_error(title, msg, tb)
 
-    def _upload_log(self):
-        # Threaded Function - used by self.upload_threads
-        uploader = Uploader(self)
-        # TODO: Exception in Uploader can't access dps_report_error
-        # leading to a exception error lmao
-        # make sure it is accessible AND find out what is causing
-        # uploads to fail
-        # Maybe a system in place to retry or show status codes and dps_report log
-        block_temp = False
-        while True:
-            log = self.collect_queue.get()
-
-            if log is None:
-                self.collect_queue.put(None)
-                return
-
-            if block_temp:
-                return
-            else:
-                block_temp = True
-            response = uploader.upload(log)
-            log.link = response["permalink"]
-
-            self.uploaded_queue.put(log)
-
-    def check_status(self):
-        """Check if the collection thread is still alive, else start upload."""
-        if self.collect_thread is None:
-            raise TypeError("Expected a thread, not None.")
-
-        self.log_count = self.collect_size_queue.qsize()
-        self.view.update_upload_label(f"Collected: {self.log_count} logs")
-
-        if not self.collect_thread.is_alive():  # done collecting
-            if self.log_count == 0:
-                return
-            step_size = 1 / self.log_count
-            amount_uploaded = self.uploaded_queue.qsize()
-            self.view.update_progress(step_size * amount_uploaded)
-
-        # if all upload threads are finished stop checking status
-        uploads_running = any([thread.is_alive() for thread in self.upload_threads])
-        if uploads_running:
-            self.view.after(100, self.check_status)
-
     def handle_upload_button(self):
-        print("Getting UI config state")
-        path = self.view.path.get_path()
+        logging.info("Upload was clicked - Collecting config information")
+        path: str = self.view.path.get_path()
 
-        days = self.view.days.get_selected_days()
+        days: [str] = self.view.days.get_selected_days()
         week_delta = self.view.week.get_week_delta()
         raids, strikes, fracs = self.view.upload.get_checked_categories()
 
-        print("Collecting Logs")
-        collector = LogCollector(self, path, days, week_delta, raids, strikes, fracs)
-        self.collect_thread = Thread(target=collector.collect)
-        self.collect_thread.daemon = True
-        self.collect_thread.start()
+        logging.info("Telling model to collect Logs")
+        self.model.collect_logs(self, path, days, week_delta, raids, strikes, fracs)
+        logging.info("Telling model to upload Logs")
 
-        self.view.after(0, self.check_status)
+        # Tkinter doesn't support async, so lets workaround it
+        async_loop = asyncio.new_event_loop()
+        t = threading.Thread(target=self.start_loop, args=(async_loop,))
+        t.start()
 
-    def clear(self):
-        pass
+        asyncio.run_coroutine_threadsafe(self.model.upload_logs(self), async_loop)
+        # self.model.upload_logs(self)
 
+    def handle_copy_button(self):
+        logging.info("Copy was clicked")
+        if not self.model.uploaded_logs:
+            logging.info("No logs to copy")
+            return
+        self.view.clipboard_clear()
+        for log in self.model.uploaded_logs:
+            # self.view.update()
+            self.view.clipboard_append(str(log) + "\n")
+        logging.info(f"Logs added to clipboard: ~{len(self.model.uploaded_logs)}")
+        self.view.copy.copyButton.configure(text="Copied")
+
+    @staticmethod
+    def start_loop(async_loop):
+        asyncio.set_event_loop(async_loop)
+        async_loop.run_forever()

@@ -31,16 +31,23 @@ class UploadFrame(CTkFrame):
         self.controller = None
 
     def upload_button_click(self):
+        self.after(2000, self.update_progress)
+
         if self.controller:
             self.controller.handle_upload_button()
 
-    def get_checked_categories(self):
+    def get_checked_categories(self) -> (bool, bool, bool):
+        """Returns if (raids, strikes, fractals) should be uploaded."""
         return self.raidVar.get(), self.strikeVar.get(), self.fracVar.get()
 
-    def update_progess(self, val):
-        if val > 1:
-            val = 1
-        if val < 0:
-            val = 0
-        self.uploadPrg.set(val)
+    def update_progress(self):
+        uploaded_count = self.controller.model.uploaded_count
+        if uploaded_count > 1:
+            uploaded_count = 1
+        if uploaded_count < 0:
+            uploaded_count = 0
+        self.uploadPrg.set(uploaded_count)
         self.update_idletasks()
+
+        if not uploaded_count >= self.controller.model.collected_count:
+            self.after(500, self.update_progress)

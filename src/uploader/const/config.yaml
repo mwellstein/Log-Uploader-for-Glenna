@@ -1,12 +1,15 @@
 logs:
   min_size: 200000  # kb
 upload:
-  url: https://dps.report/
-  backup: https://b.dps.report/
+  url: https://dps.report/uploadContent?json=1
+  backup: https://b.dps.report/uploadContent?json=1
+  endpoint: uploadContent?json=1
+  params: {"json": "1"}
   rate_limit: 25
   rate_timeout_seconds: 60
   backoff_factor: 0.2
   retries: 8
+  user_token: userToken=2er3ubphpf732libpkedhui572krbj4i
 raids:
   en:
     - Vale Guardian

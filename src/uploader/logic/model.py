@@ -1,4 +1,7 @@
+import logging
 from queue import Queue
+from .collector import LogCollector
+from .uploader import Uploader
 
 
 class Model:
@@ -7,30 +10,22 @@ class Model:
         self.collect_size_queue = Queue()
         self.uploaded_queue = Queue()
         self.failed_up_queue = Queue()
-        self.log_count = 0
-
-    def upload_log(self, controller):
-        # Threaded Function - used by self.upload_threads
-        uploader = Uploader(controller)
-        block_temp = False
-        while True:
-            log = self.collect_queue.get()
-
-            if log is None:
-                self.collect_queue.put(None)
-                return
-
-            if block_temp:
-                return
-            else:
-                block_temp = True
-            response = uploader.upload(log)
-            log.link = response["permalink"]
-
-            self.uploaded_queue.put(log)
+        self.collected_logs = []
+        self.collected_count = 0
+        self.uploaded_logs = []
+        self.uploaded_count = 0
 
     def collect_logs(self, controller, path, days, week_delta, raids, strikes, fracs):
+        """Instantiate a LogCollector with the given parameters and """
         collector = LogCollector(controller, path, days, week_delta, raids, strikes, fracs)
-        collector.collect()
+        self.collected_logs = collector.collect()
+        self.collected_count = len(self.collected_logs)
+        logging.info(f"Collected {self.collected_count} logs")
 
-    # ... other methods ...
+    async def upload_logs(self, controller):
+        uploader = Uploader(controller, self.collected_logs)
+
+        async for log in uploader.upload():
+            self.uploaded_logs.append(log)
+            self.uploaded_count += 1
+

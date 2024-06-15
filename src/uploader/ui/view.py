@@ -42,7 +42,7 @@ class View(CTk):
 
     @staticmethod
     def show_error(title, msg, tb):
-        err_msg = f"{msg}\n{tb}"
+        err_msg = f"{msg}\n\n{tb}"
         showerror(title, err_msg)
 
     def update_progress(self, val):

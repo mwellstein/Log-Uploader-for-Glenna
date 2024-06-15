@@ -79,11 +79,6 @@ class LogCollector:
                 logs_to_upload.append(latest_log)
 
         return logs_to_upload
-        #         self.controller.collect_queue.put(latest_log)
-        #         self.controller.collect_size_queue.put(None)
-        #
-        # # End signal to the threads
-        # self.controller.collect_queue.put(None)
 
     def filter(self, logs: List[Log]) -> List[Log]:
         """Return only logs that meet the conditions set, i.e. date and size"""
