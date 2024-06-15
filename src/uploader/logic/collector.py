@@ -84,13 +84,16 @@ class LogCollector:
         """Return only logs that meet the conditions set, i.e. date and size"""
         filtered_logs = []
         for log in logs:
-            # If the log is from the desired week
-            if self.from_.timestamp() < log.created < self.until.timestamp():
-                # If the los is from a raid day
-                if log.day in self.raid_days:
-                    # If the log is bigger than the minimum
-                    if log.size > self.min_size:
-                        filtered_logs.append(log)
+            # If the log is not from the desired week
+            if not self.from_.timestamp() < log.created < self.until.timestamp():
+                continue
+            # If the los is not from a raid day
+            if log.day not in self.raid_days:
+                continue
+            # If the log is not bigger than the minimum
+            if not log.size > self.min_size:
+                continue
+            filtered_logs.append(log)
         return filtered_logs
 
     @staticmethod
