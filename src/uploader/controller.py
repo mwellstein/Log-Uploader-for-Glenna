@@ -32,6 +32,15 @@ class Controller:
         self.model.collect_logs(self, path, days, week_delta, raids, strikes, fracs)
         logging.info("Telling model to upload Logs")
 
+        # If nothing was collected
+        if self.model.collected_count == 0:
+            self.view.upload.change_upload_text("No Logs found")
+            self.view.update()
+            delay = 1500
+            self.view.after(delay, self.view.reset)
+            self.view.after(delay, self.view.upload.toggle_button_state)
+            return
+
         # Tkinter doesn't support async, so lets workaround it
         self.async_loop = asyncio.new_event_loop()
         self.async_thread = Thread(target=self.start_loop, args=(self.async_loop,))
@@ -44,6 +53,7 @@ class Controller:
         if not self.model.uploaded_logs:
             logging.info("No logs to copy")
             self.view.copy.change_copy_button_text("No Logs yet")
+            self.view.after(1500, self.view.copy.reset_texts)
             return
         self.view.clipboard_clear()
         for log in self.model.uploaded_logs:
@@ -53,21 +63,41 @@ class Controller:
         self.view.copy.change_copy_button_text(f"Copied {len(self.model.uploaded_logs)} Logs")
 
     def handle_reset_button(self):
+        logging.info("Reset button was pressed. Stopping tasks.")
 
-        # TODO: A list that saves all already successfully uploaded logs
-        # Pressing Upload again will only upload the missing ones, unless reupload is check!
-        # => Less need to error handle stuff to make a missing list
-        # Reset should then reset this list and stop the current tasks.
-        # Stop the async loop
-        logging.info("Cancel button was pressed. Stopping tasks.")
+        self.view.copy.change_reset_button_text("Resetting - One Minute")
+        self.view.upload.toggle_button_state(disable=True)
+
+        self.model.reset()
+        self.view.reset()
+        self.view.update()
 
         # Finishes current upload, then stops remaining tasks
-        self.async_tasks.cancel()
-        self.async_loop.call_soon_threadsafe(self.async_loop.stop)
+        if self.async_loop:
+            # Only if there already is a loop
+            self.async_tasks.cancel()
+            print(self.async_loop.call_soon_threadsafe(self.async_loop.stop))
+            self.async_loop.call_soon_threadsafe(self.async_loop.stop)
+
+        self.check_reset_status()
+
+    def check_reset_status(self):
+        if self.async_loop and self.async_loop.is_running():
+            self.view.after(250, self.check_reset_status)
+        else:
+            self.view.copy.change_reset_button_text("Reset done")
+            self.view.update()
+
+            delay = 1500
+            self.view.after(delay, self.view.copy.reset_reset_button)
+            self.view.after(delay, self.view.upload.toggle_button_state)
 
     def update_ui_depending_on_upload_count(self, up_count):
         self.view.copy.update_copy_tooltip_count(up_count)
         self.view.upload.update_progress(up_count)
+        if up_count >= self.model.collected_count:
+            self.view.upload.change_upload_text("Upload done!")
+            self.view.update_upload_tooltip("All found logs should be uploaded!")
 
     @staticmethod
     def start_loop(async_loop):
