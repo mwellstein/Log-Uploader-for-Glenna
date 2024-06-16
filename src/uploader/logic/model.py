@@ -11,6 +11,7 @@ class Model:
         self.uploaded_logs = []
         self.uploaded_count = 0
         self.missing_uploads = []  # Collected - Uploaded
+        self.missing_count = 0  # Missing + uploaded counts == collected count => done
 
         self.controller = None
 
@@ -27,6 +28,8 @@ class Model:
         uploader = Uploader(controller, self.missing_uploads)
 
         async for log in uploader.upload():
+            if not log:
+                self.missing_count += 1
             self.uploaded_logs.append(log)
             self.uploaded_count += 1
             self.missing_uploads = [missing_log for missing_log in self.missing_uploads if missing_log.boss != log.boss]

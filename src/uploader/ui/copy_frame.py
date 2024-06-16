@@ -6,20 +6,24 @@ class CopyFrame(CTkFrame):
     def __init__(self, master):
         super().__init__(master)
 
+        # Create an inner frame
+        inner_frame = CTkFrame(self, fg_color=("gray86", "gray17"))
+        inner_frame.pack(anchor="center", pady=10)  # Center the inner frame
+
         self.copy_text = "Copy to Clipboard"
-        self.copyButton = CTkButton(self, text=self.copy_text, command=self.copy_button_click)
+        self.copyButton = CTkButton(inner_frame, text=self.copy_text, command=self.copy_button_click)
         self.copyTooltip = CTkToolTip(self.copyButton,
                                       message=f"Copies <link try> to clipboard.\n"
-                                              f"Currently: 0 logs.",
+                                              f"Currently 0 Logs to copy.",
                                       justify="left")
-        self.copyButton.grid(row=0, column=0, sticky="w")
+        self.copyButton.grid(row=0, column=0, pady=(5, 0), sticky="w")
 
         self.reset_text = "Reset - Click Twice"
-        self.resetButton = CTkButton(self, text=self.reset_text, command=self.reset_button_click)
+        self.resetButton = CTkButton(inner_frame, text=self.reset_text, command=self.reset_button_click)
         CTkToolTip(self.resetButton,
                    message="Cancel remaining uploads. Ignore running ones.\nForget already uploaded logs/links.",
                    justify="left")
-        self.resetButton.grid(row=1, column=0, sticky="w")
+        self.resetButton.grid(row=1, column=0, pady=(30, 5), sticky="w")
 
         self.controller = None
         self.reset = False

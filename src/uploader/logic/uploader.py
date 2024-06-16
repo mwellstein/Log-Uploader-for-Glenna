@@ -29,7 +29,6 @@ class Uploader:
             parallel_connections = config["upload"]["parallel_connections"]
             self.semaphore = asyncio.Semaphore(parallel_connections)
 
-
     async def upload(self):
         """Uploads a list of Logs concurrently"""
         logging.info(f"Uploader tasked with uploading {len(self.collected_logs)} logs")
@@ -39,7 +38,7 @@ class Uploader:
             log = await future
             if log:
                 logging.info(f"Uploaded {log}, yielding it.")
-                yield log
+            yield log
 
     async def _upload(self, log: Log):
         """

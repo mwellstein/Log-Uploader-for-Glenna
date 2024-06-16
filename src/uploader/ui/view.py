@@ -14,7 +14,7 @@ class View(CTk):
         super().__init__()
 
         self.title("Log Uploader for Glenna")
-        self.geometry("600x400")
+        self.geometry("600x455")
 
         # Top Frame Level 1 (deep)
         self.top_frame = CTkFrame(self)
@@ -36,7 +36,7 @@ class View(CTk):
 
         # Bottom Frame L1
         self.copy = CopyFrame(self)
-        self.copy.grid(row=1, column=0, columnspan=2, sticky="n")
+        self.copy.grid(row=1, column=0, columnspan=2, sticky="nwse")
 
         self.controller = None
 

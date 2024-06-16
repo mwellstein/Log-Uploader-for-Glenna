@@ -95,9 +95,18 @@ class Controller:
     def update_ui_depending_on_upload_count(self, up_count):
         self.view.copy.update_copy_tooltip_count(up_count)
         self.view.upload.update_progress(up_count)
-        if up_count >= self.model.collected_count:
+
+        if self.model.missing_count + self.model.uploaded_count == self.model.collected_count:
+            self.view.upload.change_upload_text("Missing some! Click again.")
+            self.view.upload.update_upload_tooltip(f"Missing {self.model.missing_count} Logs. Click to try again.")
+            self.view.upload.toggle_button_state()  # Activate again if done, but some Logs are missing
+
+        if len(self.model.missing_uploads == 0):
             self.view.upload.change_upload_text("Upload done!")
-            self.view.update_upload_tooltip("All found logs should be uploaded!")
+            self.view.update_upload_tooltip("All found logs should be uploaded! Reset to upload again.")
+            self.view.upload.toggle_button_state()  # Activate again once done
+
+        self.view.update()
 
     @staticmethod
     def start_loop(async_loop):
