@@ -7,101 +7,103 @@ upload:
   params: {"json": "1"}  # TODO: Use this or remove
   rate_limit: 25  # TODO: Use this or remove
   rate_timeout_seconds: 60  # TODO: Use this or remove
-  backoff_factor: 0.2  # TODO: Use this or remove
+  backoff_factor: 0.2
   retries: 8
   parallel_connections: 6
   user_token: userToken=2er3ubphpf732libpkedhui572krbj4i  # TODO: Use the token
 raids:  # TODO: Get all the new folder names: boss (id)
   en:
-    - Vale Guardian
-    - Gorseval the Multifarious
-    - Sabetha the Saboteur
-    - Slothasor
-    - Berg
-    - Matthias Gabrel
-    - Keep Construct
-    - Haunting Statue
-    - Xera
-    - Cairn the Indomitable
-    - Mursaat Overseer
-    - Samarog
-    - Deimos
-    - Soulless Horror
-    - Broken King
-    - Eater of Souls
-    - Eye of Judgment
-    - Eye of Fate
-    - Dhuum
-    - Conjured Amalgamate
-    - Nikare
-    - Qadim
-    - Cardinal Adina
-    - Cardinal Sabir
-    - Qadim the Peerless
-  de:
-    - Tal-Wächter
-    - Gorseval der Facettenreiche
-    - Sabetha die Saboteurin
-    - Faultierion
-    - Berg
-    - Matthias Gabrel
-    - Festenkonstrukt
-    - Spukende Statue
-    - Xera
-    - Cairn der Unbeugsame
-    - Mursaat-Aufseher
-    - Samarog
-    - Deimos
-    - Seelenloser Schrecken
-    - Desmina
-    - Bezwungener König
-    - Seelenverzehrer
-    - Auge des Urteils
-    - Auge des Schicksals
-    - Dhuum
-    - Beschworene Verschmelzung
-    - Nikare
-    - Qadim
-    - Kardinal Adina
-    - Kardinal Sabir
-    - Qadim der Unvergleichliche
+    - Vale Guardian (15438)
+    - Gorseval the Multifarious (15429)
+    - Sabetha the Saboteur (15375)
+    - Slothasor (16123)
+    - Berg (16088)
+    - Matthias Gabrel (16115)
+    - McLeod the Silent (16253)
+    - Keep Construct (16235)
+    - Haunting Statue (16247)
+    - Xera (16246)
+    - Cairn the Indomitable (17194)
+    - Mursaat Overseer (17172)
+    - Samarog (17188)
+    - Deimos (17154)
+    - Soulless Horror (19767)
+    - Desmina (19828)
+    - Broken King (19691)
+    - Eater of Souls (19536)
+    - Eye of Judgment (19651)
+    - Eye of Fate  # TODO: Missing cause we never hit it first
+    - Dhuum (19450)
+    - Conjured Amalgamate (43974)
+    - Nikare (21105)
+    - Qadim (20934)
+    - Cardinal Adina (22006)
+    - Cardinal Sabir (21964)
+    - Qadim the Peerless (22000)
+  de:  # TODO: Missing cause i play in english
+    - Tal-Wächter (id)
+    - Gorseval der Facettenreiche (id)
+    - Sabetha die Saboteurin (id)
+    - Faultierion (id)
+    - Berg (id)
+    - Matthias Gabrel (id)
+    - Festenkonstrukt (id)
+    - Spukende Statue (id)
+    - Xera (id)
+    - Cairn der Unbeugsame (id)
+    - Mursaat-Aufseher (id)
+    - Samarog (id)
+    - Deimos (id)
+    - Seelenloser Schrecken (id)
+    - Desmina (id)
+    - Bezwungener König (id)
+    - Seelenverzehrer (id)
+    - Auge des Urteils (id)
+    - Auge des Schicksals (id)
+    - Dhuum (id)
+    - Beschworene Verschmelzung (id)
+    - Nikare (id)
+    - Qadim (id)
+    - Kardinal Adina (id)
+    - Kardinal Sabir (id)
+    - Qadim der Unvergleichliche (id)
 strikes:
   en:
-    - Icebrood Construct
-    - Voice of the Fallen
-    - Fraenir of Jormag
-    - Boneskinner
-    - Whisper of Jormag
-    - Freezie
-    - Captain Mai Trin
-    - Ankka
-    - Minister Li
+    - Icebrood Construct (id)  # TODO: Missing cause didn't run and probably won't that quickly
+    - Voice of the Fallen (id)
+    - Fraenir of Jormag (id)
+    - Boneskinner (id)
+    - Whisper of Jormag (id)
+    - Freezie (id)
+    - Captain Mai Trin (24033)
+    - Ankka (23957)
+    - Minister Li (24266)
     - The Dragonvoid
-    - Prototype Vermilion
-    - Dagda
-    - Cerus
+    - Prototype Vermilion (25414)
+    - Dagda (25705)
+    - Cerus (25989)
   de:
-    - Eisbrut-Konstrukt
-    - Stimme der Gefallenen
-    - Fraenir Jormags
-    - Knochenhäuter
-    - Stimme der Gefallenen
-    - Kapitän Mai Trin
-    - Ankka
-    - Minister Li
-    - Die Drachenleere
-    - Prototyp Vermillion
+    - Eisbrut-Konstrukt (id)
+    - Stimme der Gefallenen (id)
+    - Fraenir Jormags (id)
+    - Knochenhäuter (id)
+    - Stimme der Gefallenen (id)
+    - Kapitän Mai Trin (id)
+    - Ankka (id)
+    - Minister Li (id)
+    - Die Drachenleere (id)
+    - Prototyp Vermillion (id)  # TODO: Missing Dagda and Cerus
 fractals:
   en:
-    - Siax the Corrupted
-    - Ensolyss of the Endless Torment
-    - Skorvald the Shattered
-    - Artsariiv
-    - Arkk
+    - Siax the Corrupted (id)
+    - Ensolyss of the Endless Torment (id)
+    - Skorvald the Shattered (id)
+    - Artsariiv (id)
+    - Arkk (id)
     # missing: newer than arkk
   de:
-    - MAMA
-    - Albtraum-Oratuss
-    - Ensolyss der endlosen Pein
-    - Skorvald der Zerschmetterte
+    - MAMA (id)
+    - Albtraum-Oratuss (id)
+    - Ensolyss der endlosen Pein (id)
+    - Skorvald der Zerschmetterte (id)
     # missing: artsariiv, arkk, newer than arkk
