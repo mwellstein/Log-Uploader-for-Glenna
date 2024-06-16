@@ -20,7 +20,7 @@ class UploadFrame(CTkFrame):
         self.upload_tooltip = CTkToolTip(self.uploadBtn,
                                          message="Start upload.\n"
                                                  "Will try to upload missing Logs, if any.\n"
-                                                 "Auto-selects today, if nothing is selected.",
+                                                 "Auto-selects this week/weekday, if nothing is selected.",
                                          justify="left")
         # TODO: Check Progressbar
         self.uploadPrg = CTkProgressBar(inner_frame, width=400, height=20, mode="determinate")  # make indeterminate?
