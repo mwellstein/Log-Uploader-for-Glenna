@@ -1,19 +1,20 @@
 import asyncio
 import logging
-
+from random import random
+import traceback
 import aiohttp
 from aiohttp_retry import RetryClient, ExponentialRetry, RequestParams
 from yaml import safe_load
 
 from .log import Log
 
+TESTING = False
+
 
 class Uploader:
     def __init__(self, controller, collected_logs):
         self.controller = controller
         self.collected_logs = collected_logs
-
-        self.uploaded_logs: [Log] = []
 
         with open("const/config.yaml") as config_file:
             config = safe_load(config_file)
@@ -31,24 +32,30 @@ class Uploader:
 
     async def upload(self):
         """Uploads a list of Logs concurrently"""
-        logging.info(f"Uploader tasked with uploading {len(self.collected_logs)} logs")
-        tasks = [self._upload(log) for log in self.collected_logs]
-        logging.info(f"Created {len(tasks)} tasks to be uploaded.")
-        for future in asyncio.as_completed(tasks):
-            log = await future
-            if log:
-                logging.info(f"Uploaded {log}, yielding it.")
-            yield log
+        try:
+            logging.info(f"Uploader tasked with uploading {len(self.collected_logs)} logs")
+            tasks = [self._upload(log) for log in self.collected_logs]
+            logging.info(f"Created {len(tasks)} tasks to be uploaded.")
+            for future in asyncio.as_completed(tasks):
+                log = await future
+                if log:
+                    logging.info(f"Uploaded {log}, yielding it with {log.link}")
+                else:
+                    logging.info(f"Log Upload returned None, yielding None")
+                yield log
+        except Exception as e:
+            logging.error(str(e))
+            traceback.print_exc()
+            raise e
 
     async def _upload(self, log: Log):
         """
         Uploads files to specified url and gets the link to their uploaded log.
-        :param retry_client: the retry client
         :param log: a Log object
         :return: json response from "dps.report"
         """
         # "dps.report" apparently closes the session after both a 403 try and a successful upload. So use multiple.
-        async with aiohttp.ClientSession() as session:
+        async with (aiohttp.ClientSession() as session):
             retry_client = RetryClient(session, retry_options=self.retry_options)
             async with self.semaphore:
                 try:
@@ -61,11 +68,22 @@ class Uploader:
                         data.add_field('file', file_data, filename=log.path.name)
 
                         logging.info(f"Starting upload of {log.boss}")
+                        if TESTING:
+                            rand = random()
+                            sleep = int(rand * 5)
+                            await asyncio.sleep(sleep)
+                            if rand < 0.2:
+                                logging.debug(f"Test None for {log.boss} done: Returning")
+                                return None
+                            log.link = log.boss
+                            logging.debug(f"Test upload of {log.boss} done: Returning")
+                            return log
+
                         re = await retry_client.post(self.url, data=data)
                         re_json = await re.json()
                         if re.status == 200:
                             log.link = re_json["permalink"]
-                            logging.info("Added a link to a log. Returning it now")
+                            logging.info(f"Added a link to the {log.boss} Log! Returning it now")
                             return log
                         else:
                             logging.debug(f"Error uploading {log.boss}")
@@ -75,16 +93,20 @@ class Uploader:
                 except aiohttp.client_exceptions.ClientOSError as e:
                     logging.error(f"ClientOSError while uploading {log.boss}: {str(e)}")
                     logging.debug(f"{re.status}\n{re.reason}\n{re.text}")
+                    traceback.print_exc()
                 except aiohttp.client_exceptions.ClientResponseError as e:
                     logging.error(f"ClientResponseError while uploading {log.boss}: {str(e)}")
                     logging.debug(f"{re.status}\n{re.reason}\n{re.text}")
+                    traceback.print_exc()
                 except RuntimeError as e:
                     if str(e) == 'Form data has been processed already':
                         logging.error(f"Runtime - FormData reuse while uploading {log.boss}: {str(e)}")
                         logging.debug(f"{re.status}\n{re.reason}\n{re.text}")
+                        traceback.print_exc()
                     else:
-                        print(str(e))
+                        logging.error(f"Runtime Error {log.boss}: {str(e)}")
                         raise e
                 except Exception as e:
                     logging.error(f"Unexpected Error while uploading {log.boss}: {str(e)}")
                     logging.debug(f"{re.status}\n{re.reason}\n{re.text}")
+                    traceback.print_exc()

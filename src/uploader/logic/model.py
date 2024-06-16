@@ -1,5 +1,5 @@
 import logging
-from queue import Queue
+
 from .collector import LogCollector
 from .uploader import Uploader
 
@@ -16,7 +16,11 @@ class Model:
         self.controller = None
 
     def collect_logs(self, controller, path, days, week_delta, raids, strikes, fracs):
-        """Instantiate a LogCollector with the given parameters and """
+        """Instantiate a LogCollector with the given parameters and collect latest logs."""
+        # If we are "mid-run" and just missing some uploads, no need to collect logs again => less ui freezing
+        if self.missing_uploads:
+            return
+
         collector = LogCollector(controller, path, days, week_delta, raids, strikes, fracs)
         self.collected_logs = collector.collect()
         self.collected_count = len(self.collected_logs)
@@ -27,17 +31,29 @@ class Model:
     async def upload_logs(self, controller):
         uploader = Uploader(controller, self.missing_uploads)
 
-        async for log in uploader.upload():
-            if not log:
-                self.missing_count += 1
-            self.uploaded_logs.append(log)
-            self.uploaded_count += 1
-            self.missing_uploads = [missing_log for missing_log in self.missing_uploads if missing_log.boss != log.boss]
-            logging.debug(f"Removed {log.boss} from missing. Collected {self.collected_count}, "
-                          f"Missing: {len(self.missing_uploads)}")
+        # Reset missing_count to 0, else it will possibly increment above collect_counts and it + uploaded != collected
+        self.missing_count = 0  # TODO: Not yet working
 
-            if self.controller:
-                self.controller.update_ui_depending_on_upload_count(self.uploaded_count)
+        # TODO: Unrelated, no idea: Still stops execution sometimes, once a scaling error from tkinter? But often things don't raise
+
+        async for log in uploader.upload():
+            try:
+                if not log:
+                    self.missing_count += 1
+                    logging.debug("+1 Missing Log counted")
+                    continue
+                self.uploaded_logs.append(log)
+                self.uploaded_count += 1
+                self.missing_uploads = [missing_log for missing_log in self.missing_uploads if missing_log.boss != log.boss]
+                logging.debug(f"Removed {log.boss} from missing. Collected {self.collected_count}, "
+                              f"Uploaded: {self.uploaded_count}, "
+                              f"Missing: {len(self.missing_uploads)}")
+
+                if self.controller:
+                    self.controller.update_ui_depending_on_upload_count(self.uploaded_count)
+            except Exception as e:
+                logging.error(f"Unexpected Error collecting uploads {log.boss}: {str(e)}")
+                raise e
 
     def reset(self):
         logging.debug("Resetting model properties")

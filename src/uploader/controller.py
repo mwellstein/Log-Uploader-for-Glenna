@@ -76,7 +76,6 @@ class Controller:
         if self.async_loop:
             # Only if there already is a loop
             self.async_tasks.cancel()
-            print(self.async_loop.call_soon_threadsafe(self.async_loop.stop))
             self.async_loop.call_soon_threadsafe(self.async_loop.stop)
 
         self.check_reset_status()
@@ -96,14 +95,14 @@ class Controller:
         self.view.copy.update_copy_tooltip_count(up_count)
         self.view.upload.update_progress(up_count)
 
-        if self.model.missing_count + self.model.uploaded_count == self.model.collected_count:
-            self.view.upload.change_upload_text("Missing some! Click again.")
+        if self.model.missing_count and self.model.missing_count + self.model.uploaded_count == self.model.collected_count:
+            self.view.upload.change_upload_text("Missing some!")
             self.view.upload.update_upload_tooltip(f"Missing {self.model.missing_count} Logs. Click to try again.")
             self.view.upload.toggle_button_state()  # Activate again if done, but some Logs are missing
 
-        if len(self.model.missing_uploads == 0):
+        if len(self.model.missing_uploads) == 0:
             self.view.upload.change_upload_text("Upload done!")
-            self.view.update_upload_tooltip("All found logs should be uploaded! Reset to upload again.")
+            self.view.upload.update_upload_tooltip("All found logs should be uploaded! Reset to upload again.")
             self.view.upload.toggle_button_state()  # Activate again once done
 
         self.view.update()
