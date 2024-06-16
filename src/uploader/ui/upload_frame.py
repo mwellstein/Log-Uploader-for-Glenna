@@ -17,11 +17,14 @@ class UploadFrame(CTkFrame):
         self.upload_text = "Start Upload"
         self.uploadBtn = CTkButton(inner_frame, text=self.upload_text, command=self.upload_button_click)
         self.uploadBtn.grid(row=0, column=1, pady=(20, 0), sticky="w")
-        self.upload_tooltip = None
+        self.upload_tooltip = CTkToolTip(self.uploadBtn,
+                                         message="Start upload.\n"
+                                                 "Will try to upload missing Logs, if any.\n"
+                                                 "Auto-selects today, if nothing is selected.",
+                                         justify="left")
         # TODO: Check Progressbar
-        self.up_percent = 0
         self.uploadPrg = CTkProgressBar(inner_frame, width=400, height=20, mode="determinate")  # make indeterminate?
-        self.uploadPrg.set(self.up_percent)
+        self.uploadPrg.set(0)
         self.uploadPrg.grid(row=1, column=0, pady=15, columnspan=3, sticky="n")
 
         self.raidVar = BooleanVar()
@@ -60,8 +63,6 @@ class UploadFrame(CTkFrame):
         return self.raidVar.get(), self.strikeVar.get(), self.fracVar.get()
 
     def update_upload_tooltip(self, message):
-        if not self.upload_tooltip:
-            self.upload_tooltip = CTkToolTip(self.uploadBtn)
         self.upload_tooltip.configure(message=message)
 
     def update_progress(self, up_count):
@@ -69,13 +70,13 @@ class UploadFrame(CTkFrame):
         if not collected_count or collected_count == 0:
             return
 
-        self.up_percent = up_count / collected_count
-        if self.up_percent > 1:
-            self.up_percent = 1
-        if self.up_percent < 0:
-            self.up_percent = 0
+        up_percent = up_count / collected_count
+        if up_percent > 1:
+            up_percent = 1
+        if up_percent < 0:
+            up_percent = 0
 
-        self.uploadPrg.set(self.up_percent)
+        self.uploadPrg.set(up_percent)
         self.update_idletasks()
 
     def reset_texts(self):
