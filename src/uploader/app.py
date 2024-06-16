@@ -1,5 +1,5 @@
 from ui.view import View
-from uploader.controller import Controller
+from controller import Controller
 from logic.model import Model
 import logging
 
