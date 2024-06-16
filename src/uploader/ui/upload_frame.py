@@ -22,7 +22,7 @@ class UploadFrame(CTkFrame):
                                                  "Will try to upload missing Logs, if any.\n"
                                                  "Auto-selects this week/weekday, if nothing is selected.",
                                          justify="left")
-        # TODO: Check Progressbar
+
         self.uploadPrg = CTkProgressBar(inner_frame, width=400, height=20, mode="determinate")  # make indeterminate?
         self.uploadPrg.set(0)
         self.uploadPrg.grid(row=1, column=0, pady=15, columnspan=3, sticky="n")

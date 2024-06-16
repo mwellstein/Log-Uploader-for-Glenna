@@ -32,9 +32,7 @@ class Model:
         uploader = Uploader(controller, self.missing_uploads)
 
         # Reset missing_count to 0, else it will possibly increment above collect_counts and it + uploaded != collected
-        self.missing_count = 0  # TODO: Not yet working
-
-        # TODO: Unrelated, no idea: Still stops execution sometimes, once a scaling error from tkinter? But often things don't raise
+        self.missing_count = 0
 
         async for log in uploader.upload():
             try:
