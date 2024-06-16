@@ -1,3 +1,5 @@
+import traceback
+
 from ui.view import View
 from controller import Controller
 from logic.model import Model
@@ -24,7 +26,7 @@ class App:
 
         # Create a file handler
         file_handler = logging.FileHandler("glenna_log_uploader.log")
-        file_handler.setLevel(logging.ERROR)
+        file_handler.setLevel(logging.DEBUG)  # TODO: Change back for non-beta
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
@@ -34,7 +36,13 @@ class App:
 
 
 if __name__ == "__main__":
-    app = App()
-    window = app.view
-    window.protocol("WM_DELETE_WINDOW", lambda: window.destroy())
-    window.mainloop()
+    try:
+        app = App()
+        window = app.view
+        window.protocol("WM_DELETE_WINDOW", lambda: window.destroy())
+        window.mainloop()
+    except Exception as e:
+        logging.error(f"Unexpected Error in the App: {str(e)}")
+        with open("glenna_log_uploader.crashlog", "a") as file:
+            traceback.print_exc(file=file)
+            raise e
