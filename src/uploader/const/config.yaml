@@ -3,14 +3,15 @@ logs:
 upload:
   url: https://dps.report/uploadContent?json=1
   backup: https://b.dps.report/uploadContent?json=1
-  endpoint: uploadContent?json=1
-  params: {"json": "1"}
-  rate_limit: 25
-  rate_timeout_seconds: 60
-  backoff_factor: 0.2
+  endpoint: uploadContent?json=1  # TODO: Use this or remove
+  params: {"json": "1"}  # TODO: Use this or remove
+  rate_limit: 25  # TODO: Use this or remove
+  rate_timeout_seconds: 60  # TODO: Use this or remove
+  backoff_factor: 0.2  # TODO: Use this or remove
   retries: 8
+  parallel_connections: 6
   user_token: userToken=2er3ubphpf732libpkedhui572krbj4i  # TODO: Use the token
-raids:
+raids:  # TODO: Get all the new folder names: boss (id)
   en:
     - Vale Guardian
     - Gorseval the Multifarious

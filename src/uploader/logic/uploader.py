@@ -12,7 +12,6 @@ class Uploader:
     def __init__(self, controller, collected_logs):
         self.controller = controller
         self.collected_logs = collected_logs
-        self.semaphore = asyncio.Semaphore(2)
 
         self.uploaded_logs: [Log] = []
 
@@ -25,8 +24,11 @@ class Uploader:
             self.params = config["upload"]["params"]
             self.rate_limit = config["upload"]["rate_limit"]
             self.rate_timeout_seconds = config["upload"]["rate_timeout_seconds"]
-            self.retries = config["upload"]["retries"]
-            self.retry_options = ExponentialRetry(attempts=8, statuses={500, 502, 503, 504, 429})
+            retries = config["upload"]["retries"]
+            self.retry_options = ExponentialRetry(attempts=retries, statuses={403, 500, 502, 503, 504, 429})
+            parallel_connections = config["upload"]["parallel_connections"]
+            self.semaphore = asyncio.Semaphore(parallel_connections)
+
 
     async def upload(self):
         """Uploads a list of Logs concurrently"""
