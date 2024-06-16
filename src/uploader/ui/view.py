@@ -2,11 +2,11 @@ from tkinter.messagebox import showerror
 
 from customtkinter import CTk, CTkFrame
 
+from .copy_frame import CopyFrame
 from .day_selector import DaySelector
 from .path_selector import PathSelector
-from .week_selector import WeekSelector
 from .upload_frame import UploadFrame
-from .copy_frame import CopyFrame
+from .week_selector import WeekSelector
 
 
 class View(CTk):

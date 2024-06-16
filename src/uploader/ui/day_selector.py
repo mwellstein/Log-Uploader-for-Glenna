@@ -1,5 +1,6 @@
-from customtkinter import CTkFrame, CTkLabel, BooleanVar, CTkCheckBox
 from datetime import datetime
+
+from customtkinter import CTkFrame, CTkLabel, BooleanVar, CTkCheckBox
 
 
 class DaySelector(CTkFrame):

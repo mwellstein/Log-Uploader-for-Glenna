@@ -1,9 +1,9 @@
+import logging
 import traceback
 
-from ui.view import View
 from controller import Controller
 from logic.model import Model
-import logging
+from ui.view import View
 
 
 class App:
@@ -19,14 +19,14 @@ class App:
     @staticmethod
     def logging():
         logger = logging.getLogger()
-        # TODO: Set back to error only
-        logger.setLevel(logging.DEBUG)
+
+        logger.setLevel(logging.DEBUG)  # Global level
 
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
         # Create a file handler
         file_handler = logging.FileHandler("glenna_log_uploader.log")
-        file_handler.setLevel(logging.DEBUG)  # TODO: Change back for non-beta
+        file_handler.setLevel(logging.DEBUG)  # File level can be different
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 

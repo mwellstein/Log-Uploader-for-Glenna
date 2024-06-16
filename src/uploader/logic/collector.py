@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
+
 from yaml import safe_load
 
 from .log import Log

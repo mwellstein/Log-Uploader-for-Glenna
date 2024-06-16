@@ -1,5 +1,5 @@
-from customtkinter import CTkFrame, CTkButton, BooleanVar, CTkProgressBar, CTkCheckBox
 from CTkToolTip import CTkToolTip
+from customtkinter import CTkFrame, CTkButton, BooleanVar, CTkProgressBar, CTkCheckBox
 
 
 class UploadFrame(CTkFrame):

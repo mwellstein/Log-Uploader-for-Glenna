@@ -1,7 +1,8 @@
-from customtkinter import CTkFrame, CTkLabel, StringVar, CTkEntry, CTkButton
-from tkinter import filedialog
-from pathlib import Path
 import ctypes.wintypes
+from pathlib import Path
+from tkinter import filedialog
+
+from customtkinter import CTkFrame, CTkLabel, StringVar, CTkEntry, CTkButton
 
 
 class PathSelector(CTkFrame):

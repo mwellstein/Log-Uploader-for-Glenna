@@ -1,11 +1,12 @@
 import asyncio
 import logging
-from random import random
 import traceback
+from random import random
+
 import aiohttp
 from aiohttp_retry import RetryClient, ExponentialRetry
-from yaml import safe_load
 from asyncio_throttle import Throttler
+from yaml import safe_load
 
 from .log import Log
 
@@ -78,7 +79,7 @@ class Uploader:
                                 rand = random()
                                 sleep = int(rand * 5)
                                 await asyncio.sleep(sleep)
-                                if rand < 0.2:
+                                if rand < 0.25:
                                     logging.debug(f"Test None for {log.boss} done: Returning")
                                     return None
                                 log.link = log.boss

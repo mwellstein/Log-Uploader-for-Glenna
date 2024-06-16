@@ -1,5 +1,5 @@
-from customtkinter import CTkFrame, CTkButton
 from CTkToolTip import CTkToolTip
+from customtkinter import CTkFrame, CTkButton
 
 
 class CopyFrame(CTkFrame):
