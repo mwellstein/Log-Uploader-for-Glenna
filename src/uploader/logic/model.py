@@ -41,6 +41,7 @@ class Model:
                 if not log:
                     self.missing_count += 1
                     logging.debug("+1 Missing Log counted")
+                    self.controller.update_ui_depending_on_upload_count(self.uploaded_count)
                     continue
                 self.uploaded_logs.append(log)
                 self.uploaded_count += 1
