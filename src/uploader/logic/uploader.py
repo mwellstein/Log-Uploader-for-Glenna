@@ -3,7 +3,7 @@ import logging
 from random import random
 import traceback
 import aiohttp
-from aiohttp_retry import RetryClient, ExponentialRetry, RequestParams
+from aiohttp_retry import RetryClient, ExponentialRetry
 from yaml import safe_load
 from asyncio_throttle import Throttler
 
@@ -28,10 +28,12 @@ class Uploader:
             self.rate_timeout_seconds = config["upload"]["rate_timeout_seconds"]
             retries = config["upload"]["retries"]
             start_timeout = config["upload"]["backoff_factor"]
-            self.retry_options = ExponentialRetry(attempts=retries, start_timeout=start_timeout, statuses={403, 500, 502, 503, 504, 429})
+            self.retry_options = ExponentialRetry(attempts=retries,
+                                                  start_timeout=start_timeout,
+                                                  statuses={403, 500, 502, 503, 504, 429})
             parallel_connections = config["upload"]["parallel_connections"]
             self.semaphore = asyncio.Semaphore(parallel_connections)
-            self.throttler = Throttler(rate_limit=25, period=60)
+            self.throttler = Throttler(rate_limit=self.rate_limit, period=self.rate_timeout_seconds)
 
     async def upload(self):
         """Uploads a list of Logs concurrently"""
@@ -84,7 +86,8 @@ class Uploader:
                                 return log
 
                         async with self.throttler:
-                            re = await retry_client.post(self.url, data=data)
+                            re = await retry_client.post(self.url + self.endpoint, data=data, params=self.params)
+                            logging.debug(f"Uploading to {re.url}")
                         re_json = await re.json()
                         if re.status == 200:
                             log.link = re_json["permalink"]
