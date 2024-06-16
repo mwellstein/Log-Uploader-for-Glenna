@@ -5,10 +5,11 @@ import traceback
 import aiohttp
 from aiohttp_retry import RetryClient, ExponentialRetry, RequestParams
 from yaml import safe_load
+from asyncio_throttle import Throttler
 
 from .log import Log
 
-TESTING = False
+TESTING = True
 
 
 class Uploader:
@@ -26,9 +27,11 @@ class Uploader:
             self.rate_limit = config["upload"]["rate_limit"]
             self.rate_timeout_seconds = config["upload"]["rate_timeout_seconds"]
             retries = config["upload"]["retries"]
-            self.retry_options = ExponentialRetry(attempts=retries, statuses={403, 500, 502, 503, 504, 429})
+            start_timeout = config["upload"]["backoff_factor"]
+            self.retry_options = ExponentialRetry(attempts=retries, start_timeout=start_timeout, statuses={403, 500, 502, 503, 504, 429})
             parallel_connections = config["upload"]["parallel_connections"]
             self.semaphore = asyncio.Semaphore(parallel_connections)
+            self.throttler = Throttler(rate_limit=25, period=60)
 
     async def upload(self):
         """Uploads a list of Logs concurrently"""
@@ -69,17 +72,19 @@ class Uploader:
 
                         logging.info(f"Starting upload of {log.boss}")
                         if TESTING:
-                            rand = random()
-                            sleep = int(rand * 5)
-                            await asyncio.sleep(sleep)
-                            if rand < 0.2:
-                                logging.debug(f"Test None for {log.boss} done: Returning")
-                                return None
-                            log.link = log.boss
-                            logging.debug(f"Test upload of {log.boss} done: Returning")
-                            return log
+                            async with self.throttler:
+                                rand = random()
+                                sleep = int(rand * 5)
+                                await asyncio.sleep(sleep)
+                                if rand < 0.2:
+                                    logging.debug(f"Test None for {log.boss} done: Returning")
+                                    return None
+                                log.link = log.boss
+                                logging.debug(f"Test upload of {log.boss} done: Returning")
+                                return log
 
-                        re = await retry_client.post(self.url, data=data)
+                        async with self.throttler:
+                            re = await retry_client.post(self.url, data=data)
                         re_json = await re.json()
                         if re.status == 200:
                             log.link = re_json["permalink"]
