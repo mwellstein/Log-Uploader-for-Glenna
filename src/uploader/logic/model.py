@@ -15,6 +15,8 @@ class Model:
         self.uploaded_logs = []
         self.uploaded_count = 0
 
+        self.controller = None
+
     def collect_logs(self, controller, path, days, week_delta, raids, strikes, fracs):
         """Instantiate a LogCollector with the given parameters and """
         collector = LogCollector(controller, path, days, week_delta, raids, strikes, fracs)
@@ -28,4 +30,8 @@ class Model:
         async for log in uploader.upload():
             self.uploaded_logs.append(log)
             self.uploaded_count += 1
+            if self.controller:
+                self.controller.update_ui_depending_on_upload_count(self.uploaded_count)
 
+    def set_controller(self, controller):
+        self.controller = controller

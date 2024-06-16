@@ -24,5 +24,5 @@ class DaySelector(CTkFrame):
         if not any([day for day in self.weekdaysVar if day.get()]):
             today = datetime.now().weekday()
             self.weekdaysVar[today].set(True)
-
+            self.update()
         return [day for i, day in enumerate(self.weekdays) if self.weekdaysVar[i].get()]

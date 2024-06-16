@@ -5,18 +5,16 @@ The only ui changes will be labels and progress on the progressbar.
 """
 import asyncio
 import logging
-import threading
-from queue import Queue
 from threading import Thread
-
-from logic.collector import LogCollector
-from logic.uploader import Uploader
 
 
 class Controller:
     def __init__(self, model, view):
         self.model = model
         self.view = view
+        self.async_loop = None
+        self.async_thread: Thread | None = None
+        self.async_tasks = None
 
     def show_error(self, title, msg, tb):
         """Open an error box with error information"""
@@ -35,24 +33,41 @@ class Controller:
         logging.info("Telling model to upload Logs")
 
         # Tkinter doesn't support async, so lets workaround it
-        async_loop = asyncio.new_event_loop()
-        t = threading.Thread(target=self.start_loop, args=(async_loop,))
-        t.start()
+        self.async_loop = asyncio.new_event_loop()
+        self.async_thread = Thread(target=self.start_loop, args=(self.async_loop,))
+        self.async_thread.start()
 
-        asyncio.run_coroutine_threadsafe(self.model.upload_logs(self), async_loop)
-        # self.model.upload_logs(self)
+        self.async_tasks = asyncio.run_coroutine_threadsafe(self.model.upload_logs(self), self.async_loop)
 
     def handle_copy_button(self):
         logging.info("Copy was clicked")
         if not self.model.uploaded_logs:
             logging.info("No logs to copy")
+            self.view.copy.change_copy_button_text("No Logs yet")
             return
         self.view.clipboard_clear()
         for log in self.model.uploaded_logs:
-            # self.view.update()
+            self.view.update()
             self.view.clipboard_append(str(log) + "\n")
         logging.info(f"Logs added to clipboard: ~{len(self.model.uploaded_logs)}")
-        self.view.copy.copyButton.configure(text="Copied")
+        self.view.copy.change_copy_button_text(f"Copied {len(self.model.uploaded_logs)} Logs")
+
+    def handle_reset_button(self):
+
+        # TODO: A list that saves all already successfully uploaded logs
+        # Pressing Upload again will only upload the missing ones, unless reupload is check!
+        # => Less need to error handle stuff to make a missing list
+        # Reset should then reset this list and stop the current tasks.
+        # Stop the async loop
+        logging.info("Cancel button was pressed. Stopping tasks.")
+
+        # Finishes current upload, then stops remaining tasks
+        self.async_tasks.cancel()
+        self.async_loop.call_soon_threadsafe(self.async_loop.stop)
+
+    def update_ui_depending_on_upload_count(self, up_count):
+        self.view.copy.update_copy_tooltip_count(up_count)
+        self.view.upload.update_progress(up_count)
 
     @staticmethod
     def start_loop(async_loop):

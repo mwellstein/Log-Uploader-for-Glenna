@@ -11,6 +11,7 @@ class App:
 
         controller = Controller(self.model, self.view)
         self.view.set_controller(controller)
+        self.model.set_controller(controller)
         self.logging()
 
     @staticmethod
@@ -22,10 +23,10 @@ class App:
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
         # Create a file handler
-        # file_handler = logging.FileHandler("glenna_log_uploader.log")
-        # file_handler.setLevel(logging.ERROR)
-        # file_handler.setFormatter(formatter)
-        # logger.addHandler(file_handler)
+        file_handler = logging.FileHandler("glenna_log_uploader.log")
+        file_handler.setLevel(logging.ERROR)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)

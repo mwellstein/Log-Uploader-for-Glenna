@@ -12,7 +12,7 @@ class Uploader:
     def __init__(self, controller, collected_logs):
         self.controller = controller
         self.collected_logs = collected_logs
-        self.semaphore = asyncio.Semaphore(8)
+        self.semaphore = asyncio.Semaphore(2)
 
         self.uploaded_logs: [Log] = []
 

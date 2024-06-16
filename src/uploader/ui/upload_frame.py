@@ -7,11 +7,11 @@ class UploadFrame(CTkFrame):
 
         self.uploadBtn = CTkButton(self, text="Start Upload", command=self.upload_button_click)
         self.uploadBtn.grid(row=0, column=0, sticky="w")
-
+        # TODO: remove or use this - Use: If set ignore (not delete) known_uploaded_list (tbi)
         self.reupVar = BooleanVar()
         self.reuploadCheck = CTkCheckBox(self, text="Reupload", variable=self.reupVar)
         self.reuploadCheck.grid(row=0, column=1, sticky="w")
-
+        # TODO: Check Progressbar
         self.uploadPrg = CTkProgressBar(self, width=400, height=20, mode="determinate")  # make indeterminate?
         self.uploadPrg.set(0)
         self.uploadPrg.grid(row=1, column=0, padx=20, pady=20, columnspan=3, sticky="w")
@@ -31,23 +31,35 @@ class UploadFrame(CTkFrame):
         self.controller = None
 
     def upload_button_click(self):
-        self.after(2000, self.update_progress)
+        self.change_button_text("Collecting")
+        self.toggle_button_state()
+        self.update()
 
         if self.controller:
             self.controller.handle_upload_button()
+
+    def change_button_text(self, text: str):
+        self.uploadBtn.configure(text=f"{text}")
+
+    def toggle_button_state(self):
+        if self.uploadBtn.cget("state") == "disabled":
+            self.uploadBtn.configure(state="enabled")
+        else:
+            self.uploadBtn.configure(state="disabled")
 
     def get_checked_categories(self) -> (bool, bool, bool):
         """Returns if (raids, strikes, fractals) should be uploaded."""
         return self.raidVar.get(), self.strikeVar.get(), self.fracVar.get()
 
-    def update_progress(self):
-        uploaded_count = self.controller.model.uploaded_count
-        if uploaded_count > 1:
-            uploaded_count = 1
-        if uploaded_count < 0:
-            uploaded_count = 0
-        self.uploadPrg.set(uploaded_count)
-        self.update_idletasks()
+    def update_progress(self, up_count):
+        collected_count = self.controller.model.collected_count  # Is static once calculated, is fine to just grab
+        if not collected_count or collected_count == 0:
+            return
+        up_percent = up_count / collected_count
+        if up_percent > 1:
+            up_percent = 1
+        if up_percent < 0:
+            up_percent = 0
 
-        if not uploaded_count >= self.controller.model.collected_count:
-            self.after(500, self.update_progress)
+        self.uploadPrg.set(up_percent)
+        self.update_idletasks()

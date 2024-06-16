@@ -9,7 +9,7 @@ upload:
   rate_timeout_seconds: 60
   backoff_factor: 0.2
   retries: 8
-  user_token: userToken=2er3ubphpf732libpkedhui572krbj4i
+  user_token: userToken=2er3ubphpf732libpkedhui572krbj4i  # TODO: Use the token
 raids:
   en:
     - Vale Guardian
