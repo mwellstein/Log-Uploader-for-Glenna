@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 from tkinter.messagebox import showerror
 
 from customtkinter import CTk, CTkFrame
