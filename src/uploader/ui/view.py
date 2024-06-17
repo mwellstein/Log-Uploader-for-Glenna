@@ -18,9 +18,10 @@ class View(CTk):
         self.title("Log Uploader for Glenna")
         self.geometry("600x455")
 
-        base_path = Path(getattr(sys, "_MEIPASS", "../../"))
-        icon_path = base_path / "glenna_uploader.ico"
-        self.iconbitmap(icon_path)
+        if getattr(sys, "frozen", False):
+            self.iconbitmap(default=sys.executable)  # Applies the --icon from pyinstaller everywhere
+        else:
+            self.iconbitmap(default="../../glenna_uploader.ico")  # If run from source
 
         # Top Frame Level 1 (deep)
         self.top_frame = CTkFrame(self)
