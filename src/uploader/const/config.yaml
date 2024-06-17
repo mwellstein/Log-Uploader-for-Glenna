@@ -10,7 +10,7 @@ upload:
   rate_timeout_seconds: 60
   backoff_factor: 0.2
   retries: 8
-  parallel_connections: 1
+  parallel_connections: 6
 raids:
   en:
     - Vale Guardian (15438)
