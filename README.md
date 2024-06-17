@@ -46,5 +46,15 @@ https://dps.report/1111-20200216-214748_falln 1
 Dies ist jeweils ein Link zu dps.report, sowie die Anzahl der Versuche, die an diesen Tagen der Woche dort benötigt wurden.
 
 # Build
-Um die ausführbare Datei zu erhalten, braucht es pyinstaller mit folgendem Kommando:
-`pyinstaller --onefile --paths venv\Lib\site-packages -w -n "Log Uploader for Glenna vX.Y" "Log Uploader for Glenna\app.py"`
+Um die ausführbare Datei zu erhalten, braucht es pyinstaller mit folgendem Kommando aus dem venv des Projects:
+`pyinstaller -F -w -n "Log Uploader for Glenna vX.Y" -i "glenna_uploader.ico" "src\uploader\app.py"`
+
+- `-F --onefile` create a one-file bundled executable
+- `-w --windowed` removes the console window that would otherwise appear
+- `-n --name` defines the name of the application
+- `-i --icon` set an .ico as executable icon (on windows)
+- `--add-data` was used to add the icon file to the executable. It was then extracted into a temp folder on launch
+  - the path is under sys _MEIPASS
+
+# TODO: Add an icon to the window with tkinter but bundled in the exe
+
