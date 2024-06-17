@@ -1,3 +1,5 @@
+import sys
+from pathlib import Path
 from tkinter.messagebox import showerror
 
 from customtkinter import CTk, CTkFrame
@@ -15,6 +17,10 @@ class View(CTk):
 
         self.title("Log Uploader for Glenna")
         self.geometry("600x455")
+
+        base_path = Path(getattr(sys, "_MEIPASS", "../../"))
+        icon_path = base_path / "glenna_uploader.ico"
+        self.iconbitmap(icon_path)
 
         # Top Frame Level 1 (deep)
         self.top_frame = CTkFrame(self)
