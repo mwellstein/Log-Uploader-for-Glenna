@@ -56,5 +56,13 @@ Um die ausführbare Datei zu erhalten, braucht es pyinstaller mit folgendem Komm
 - `--add-data` was used to add the icon file to the executable. It was then extracted into a temp folder on launch
   - the path is under sys _MEIPASS
 
-# TODO: Add an icon to the window with tkinter but bundled in the exe
+# Known Issues
+
+> AttributeError: 'CTkToolTip' object has no attribute 'block_update_dimensions_event'
+
+This error seems to be triggered if a tooltip is shown on a different monitor, with either a different resolution
+or a different Windows Scaling setting, than the original monitor of the window.
+The tooltip might break, i.e. not have a background. And the scaling will not work if moving back to the other monitor.
+
+Not sure if there's a workaround. Hoping for a upstream fix. Might consider different Tooltip libraries for Tkinter.
 
