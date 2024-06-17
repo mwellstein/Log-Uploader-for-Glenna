@@ -10,7 +10,7 @@ from yaml import safe_load
 
 from .log import Log
 
-TESTING = True
+TESTING = False
 
 
 class Uploader:
