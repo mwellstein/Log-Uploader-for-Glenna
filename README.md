@@ -47,7 +47,8 @@ Dies ist jeweils ein Link zu dps.report, sowie die Anzahl der Versuche, die an d
 
 # Build
 Um die ausführbare Datei zu erhalten, braucht es pyinstaller mit folgendem Kommando aus dem venv des Projects:
-`pyinstaller -F -w -n "Log Uploader for Glenna vX.Y" -i "glenna_uploader.ico" "src\uploader\app.py"`
+`python -m PyInstaller -F -w -n "Log Uploader for Glenna v3.1" -i "glenna_uploader.ico" --add-data "src\uploader\const\config.yaml;." "src\uploader\app.py"
+`
 
 - `-F --onefile` create a one-file bundled executable
 - `-w --windowed` removes the console window that would otherwise appear
