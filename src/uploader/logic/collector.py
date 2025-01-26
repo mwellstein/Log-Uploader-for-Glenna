@@ -1,3 +1,5 @@
+import logging
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
@@ -27,7 +29,14 @@ class LogCollector:
         self.fractal_bosses = []
         self.controller = controller
 
-        with open("const/config.yaml") as config_file:
+        if getattr(sys, "frozen", False) and hasattr(sys, '_MEIPASS'):
+            config_path = Path(getattr(sys, "_MEIPASS")) / "config.yaml"
+        else:
+            config_path = Path("const/config.yaml")  # If run from source
+
+        logging.info(f"Loading config file at: {config_path}")
+
+        with open(config_path) as config_file:
             config = safe_load(config_file)
 
         self.min_size = config["logs"]["min_size"]
@@ -48,7 +57,10 @@ class LogCollector:
         self.fractal_bosses.extend(en_fractals_bosses)
         self.fractal_bosses = list(set(self.fractal_bosses))
 
+        logging.info("Collector initialized successfully")
+
     def collect(self):
+        logging.info("Start collection")
         # Collect all boss directories
         boss_dirs = []
         if self.raids:
@@ -79,10 +91,12 @@ class LogCollector:
                 latest_log.kill_try_nr = len(logs)
                 logs_to_upload.append(latest_log)
 
+        logging.info("Collecting done, returning latest logs per folder.")
         return logs_to_upload
 
     def filter(self, logs: List[Log]) -> List[Log]:
         """Return only logs that meet the conditions set, i.e. date and size"""
+        logging.info("Start filtering logs")
         filtered_logs = []
         for log in logs:
             # If the log is not from the desired week
@@ -95,11 +109,13 @@ class LogCollector:
             if not log.size > self.min_size:
                 continue
             filtered_logs.append(log)
+        logging.info("Finish filtering logs")
         return filtered_logs
 
     @staticmethod
     def _collect(boss_dir) -> [Path]:
         """Collects the actual files by Path"""
+        logging.info("Starting actual file collections")
         # Collect all file paths, i.e. boss_dir/log_name
         files = [boss_dir / log_name for log_name in boss_dir.iterdir() if log_name.is_file()]
 
@@ -107,4 +123,5 @@ class LogCollector:
         sub_dirs = [boss_dir / sub for sub in boss_dir.iterdir() if sub.is_dir()]
         for sub_dir in sub_dirs:
             files.extend([sub_dir / log for log in sub_dir.iterdir() if log.is_file()])
+        logging.info("Finished actual file collection")
         return files

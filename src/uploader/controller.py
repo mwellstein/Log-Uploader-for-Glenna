@@ -46,6 +46,8 @@ class Controller:
         self.async_thread = Thread(target=self.start_loop, args=(self.async_loop,))
         self.async_thread.start()
 
+        self.view.upload.change_upload_text("Uploading")
+
         self.async_tasks = asyncio.run_coroutine_threadsafe(self.model.upload_logs(self), self.async_loop)
 
     def handle_copy_button(self):
@@ -53,7 +55,7 @@ class Controller:
         if not self.model.uploaded_logs:
             logging.info("No logs to copy")
             self.view.copy.change_copy_button_text("No Logs yet")
-            self.view.after(1500, self.view.copy.reset_texts)
+            self.view.after(1500, self.view.copy.reset_texts)  # TODO: This overlapps if pressed multiple times, is it possible to cancel previous ones or extend time?
             return
         self.view.clipboard_clear()
         for log in self.model.uploaded_logs:

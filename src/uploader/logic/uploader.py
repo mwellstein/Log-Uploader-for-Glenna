@@ -1,6 +1,8 @@
 import asyncio
 import logging
+import sys
 import traceback
+from pathlib import Path
 from random import random
 
 import aiohttp
@@ -18,7 +20,14 @@ class Uploader:
         self.controller = controller
         self.collected_logs = collected_logs
 
-        with open("const/config.yaml") as config_file:
+        if getattr(sys, "frozen", False) and hasattr(sys, '_MEIPASS'):
+            config_path = Path(getattr(sys, "_MEIPASS")) / "config.yaml"
+        else:
+            config_path = Path("const/config.yaml")  # If run from source
+
+        logging.info(f"Loading config file at: {config_path}")
+
+        with open(config_path) as config_file:
             config = safe_load(config_file)
 
             self.url = config["upload"]["url"]
@@ -45,7 +54,7 @@ class Uploader:
             for future in asyncio.as_completed(tasks):
                 log = await future
                 if log:
-                    logging.info(f"Uploaded {log}, yielding it with {log.link}")
+                    logging.info(f"Uploaded {log.boss}, yielding it with {log.link}")
                 else:
                     logging.info(f"Log Upload returned None, yielding None")
                 yield log

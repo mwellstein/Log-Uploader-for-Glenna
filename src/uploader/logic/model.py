@@ -18,14 +18,19 @@ class Model:
     def collect_logs(self, controller, path, days, week_delta, raids, strikes, fracs):
         """Instantiate a LogCollector with the given parameters and collect latest logs."""
         # If we are "mid-run" and just missing some uploads, no need to collect logs again => less ui freezing
+        logging.info("Starting collection handling")
         if self.missing_uploads:
             return
 
-        collector = LogCollector(controller, path, days, week_delta, raids, strikes, fracs)
+        logging.info("Starting collection process")
+        try:
+            collector = LogCollector(controller, path, days, week_delta, raids, strikes, fracs)
+        except Exception as e:
+            logging.error(e)
+            raise e
         self.collected_logs = collector.collect()
         self.collected_count = len(self.collected_logs)
         logging.info(f"Collected {self.collected_count} logs")
-
         self.missing_uploads = self.collected_logs
 
     async def upload_logs(self, controller):
