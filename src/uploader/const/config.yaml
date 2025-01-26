@@ -40,6 +40,9 @@ raids:
     - Cardinal Adina (22006)
     - Cardinal Sabir (21964)
     - Qadim the Peerless (22000)
+    - Greer, the Blightbringer (26725)
+    - Decima, the Stormsinger (26774)
+    - Ura (26712)
   de:
     - Tal-Wächter (15438)
     - Gorseval der Facettenreiche (15429)
@@ -68,6 +71,9 @@ raids:
     - Kardinal Adina (22006)
     - Kardinal Sabir (21964)
     - Qadim der Unvergleichliche (22000)
+    - Greer, der Pestilenzbringer (26725)
+    - Decima, die Sturmsängerin (26774)
+    - Ura (26712)
 strikes:
   en:
     - Icebrood Construct (22154)  # Missing cause didn't run and probably won't that quickly
