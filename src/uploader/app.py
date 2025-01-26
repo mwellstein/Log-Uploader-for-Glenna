@@ -1,5 +1,8 @@
 import logging
+import sys
 import traceback
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 from controller import Controller
 from logic.model import Model
@@ -14,10 +17,10 @@ class App:
         self.controller = Controller(self.model, self.view)
         self.view.set_controller(self.controller)
         self.model.set_controller(self.controller)
-        self.logging()
+        self.setup_logging()
 
     @staticmethod
-    def logging():
+    def setup_logging():
         logger = logging.getLogger()
 
         logger.setLevel(logging.DEBUG)  # Global level
@@ -28,11 +31,16 @@ class App:
 
         # TODO: AS EXE its stuck at the collecting stage?
 
+        if getattr(sys, "frozen", False) and hasattr(sys, '_MEIPASS'):
+            log_path = Path(getattr(sys, "_MEIPASS")) / "glenna_log_uploader.log"
+        else:
+            log_path = Path("glenna_log_uploader.log")  # If run from source
+
         # Create a file handler
-        # file_handler = logging.FileHandler("glenna_log_uploader.log")
-        # file_handler.setLevel(logging.DEBUG)  # File level can be different
-        # file_handler.setFormatter(formatter)
-        # logger.addHandler(file_handler)
+        file_handler = RotatingFileHandler(log_path, maxBytes=5*1024*1024, backupCount=3)
+        file_handler.setLevel(logging.DEBUG)  # File level can be different
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
